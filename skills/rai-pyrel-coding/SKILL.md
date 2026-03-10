@@ -21,7 +21,7 @@ description: Covers PyRel v1 language syntax including imports, type system, con
 **When NOT to use:**
 - Ontology modeling decisions (when to create a concept vs property, gap classification) — see `ontology_design/SKILL.md`
 - Query construction (select, aggregation, filtering, joins) — see `querying/SKILL.md`
-- Solver formulation (variables, constraints, objectives) — see `rai_prescriptive_problem_formulation/SKILL.md`
+- Solver formulation (variables, constraints, objectives) — see `rai-prescriptive-problem-formulation/SKILL.md`
 - Connection and config setup — see `configuration/SKILL.md`
 
 **Overview:** Reference skill. Key lookup areas: Imports, Model Patterns, Type System, Concepts/Properties/Relationships, Data Loading, References and Aliasing, Standard Library (math/strings/dates), Expression Rules.
@@ -481,7 +481,7 @@ def solve(model):
 
 **Exception:** Function-scoped models (`Model(f"problem_{time_ns()}")`) are appropriate only in automated pipelines or tests that create multiple ephemeral models where name collisions are possible.
 
-**Template examples:** See `../rai_rai_prescriptive_problem_formulation/examples/diet.py` for minimal linear optimization, `../rai_rai_prescriptive_problem_formulation/examples/shift_assignment.py` for binary assignment, `../rai_rai_prescriptive_problem_formulation/examples/portfolio_balancing.py` for pairwise expressions.
+**Template examples:** See `../rai-prescriptive-problem-formulation/examples/diet.py` for minimal linear optimization, `../rai-prescriptive-problem-formulation/examples/shift_assignment.py` for binary assignment, `../rai-prescriptive-problem-formulation/examples/portfolio_balancing.py` for pairwise expressions.
 
 ---
 ## RAI Expression Syntax
@@ -532,9 +532,6 @@ Shipment.x_flow = model.Property(f'{{Shipment}} has {{Float:x_flow}}')
 | Long import lines breaking linters | LLMs generate 100+ char single-line imports | Split across multiple lines with `()` or use module alias (`import relationalai.semantics as rai`) |
 | Using bare `Number` without `.size()` | Causes type inference issues at runtime | Always use `Number.size(p, s)` (e.g., `Number.size(38, 4)`) |
 | Relationship declared but has no data | `model.Relationship(...)` without a corresponding `model.define()` data binding | Relationship has NO DATA at runtime — any `.where()` join on it returns zero matches. Add `model.define(From.rel(To)).where(...)` to populate it from data. |
-| Using `~` for negations | Causes `TypeError: bad operand type for unary ~: 'Expression'` | Always use `model.not_(expr)`
-| Using aggregates without model.distinct() | Causes duplicate rows in output | use `model.select(model.distinct(expr))` around all columns |
-| Incorrect datetimes for inline data | Causes query errors or empty result sets | use eg `df["date"] = pd.to_datetime(df["date"]).dt.date` |
 
 ### Fix patterns for common pitfalls
 
@@ -577,8 +574,8 @@ ProductStoreWeek.week_num = model.Property(f"{ProductStoreWeek} has {Integer:wee
 |---|---|---|
 | Multiarity properties + refs | Binding multiple Float.ref() in `.where()`, pairwise week comparison | [examples/retail_markdown_code.py](examples/retail_markdown_code.py) |
 | Standalone Property + union | Property not attached to concept, `model.union()` for multi-component objective, segment self-join | [examples/supply_chain_transport_code.py](examples/supply_chain_transport_code.py) |
-| Cheat sheet | Various self-contained examples covering essential patterns | [examples/cheat_sheet.py](examples/cheat_sheet.py) |
-| Customer segmentation | "Meet PyRel" example which can be copy-pasted and run | [examples/customer_segmentation.py](examples/customer_segmentation.py) |
+| Starter example | Customer segmentation example from docs | [examples/customer_segmentation.py](examples/customer_segmentation.py) |
+
 ---
 
 ## Reference files

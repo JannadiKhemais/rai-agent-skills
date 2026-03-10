@@ -2,25 +2,38 @@
 
 Empower your coding agent with the decision intelligence capabilities of [RelationalAI](https://relational.ai).
 
+Skills are markdown files encoding expert knowledge — heuristics, workflows, and patterns. They are distributed as folders and installed into a location the agent can discover (e.g. ~/.claude/skills/). At runtime, the agent reads relevant skills to inform its reasoning, and calls tools to take action. Skills shape how the agent thinks; tools shape what it can do.
+
+```
+          +---------+
+          |  Agent  |
+          +---------+
+         /           \
+     reads           calls
+      /                 \
++-------------+   +-------------+
+|   Skills    |   |    Tools    |
+| <knowledge> |   |  <actions>  |
++-------------+   +-------------+
+```
+
+The skills in this repo instruct your agent how to use the `relationalai` Python package (aka PyRel) to leverage RAI semantic models and advanced reasoners.
+
 ## Installation
 
 TODO while the repo is private, use `git@github.com:RelationalAI/rai-agent-skills.git` instead of `RelationalAI/rai-agent-skills`
 
 ### Generic
 
-If you can, use [Vercel's skills CLI](https://github.com/vercel-labs/skills) (requres `npm` v5.2.0+). It helps you manage & update skills for most coding agents.
+[Vercel's skills CLI](https://github.com/vercel-labs/skills) (requres `npm` v5.2.0+) helps you manage & update skills for most coding agents.
 ```bash
- $ npx skills add RelationalAI/rai-agent-skills
- # optionally specify agents to target
- $ npx skills add RelationalAI/rai-agent-skills \
-  --agent claude-code \
-  --agent cortex \
-  --agent codex
+ $ npx skills add RelationalAI/rai-agent-skills --skill '*' \
+     --agent claude-code \
+     --agent cortex \
+     --agent codex
 ```
 
 You can also directly copy the `skills/` folder into your coding agent configuration.
-
-We recommend either `npx skills` or an agent-specific method so that it's easy to keep up to date.
 
 ### Claude
 Follow [these instructions](https://code.claude.com/docs/en/discover-plugins#add-marketplaces) to point at this repo.
