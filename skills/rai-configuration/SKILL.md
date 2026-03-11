@@ -12,7 +12,7 @@ description: Covers PyRel v1 configuration including raiconfig.yaml, connection 
 
 **When to use:**
 - Setting up a new project (raiconfig.yaml)
-- Configuring Snowflake or DuckDB connections
+- Configuring Snowflake connections
 - Choosing an authentication method (username/password, JWT, OAuth, PAT, browser)
 - Tuning reasoner engine sizes or solver settings
 - Migrating from v0.13 config (TOML → YAML, removed parameters)
@@ -22,7 +22,7 @@ description: Covers PyRel v1 configuration including raiconfig.yaml, connection 
 - Model creation or PyRel syntax (concepts, properties, data loading) — see `pyrel_coding/SKILL.md`
 - Solver execution and diagnostics — see `rai-prescriptive-solver-management/SKILL.md`
 
-**Overview:** Reference skill. Key lookup areas: Config File (raiconfig.yaml structure), Connection Setup (Snowflake auth methods, DuckDB), Programmatic Config (create_config), Model Settings, Reasoner Settings (engine sizes, per-reasoner options).
+**Overview:** Reference skill. Key lookup areas: Config File (raiconfig.yaml structure), Connection Setup (Snowflake auth methods), Programmatic Config (create_config), Model Settings, Reasoner Settings (engine sizes, per-reasoner options).
 
 ---
 
@@ -41,19 +41,10 @@ connections:
     password: ${SNOWFLAKE_PASSWORD}
 ```
 
-```yaml
-# Minimal DuckDB config (raiconfig.yaml)
-default_connection: local
-connections:
-  local:
-    type: duckdb
-    path: ":memory:"
-```
-
 ```python
 # Programmatic config (no YAML file needed)
 from relationalai.semantics import create_config, Model
-config = create_config(connection_type="duckdb")
+config = create_config(connection_type="snowflake")
 model = Model("my_model", config=config)
 ```
 
@@ -82,10 +73,6 @@ connections:
     role: my_role                      # optional
     database: my_database              # optional
     schema: my_schema                  # optional
-
-  local:
-    type: duckdb
-    path: ":memory:"
 
 reasoners:
   backend: sql                         # "sql" (default) or "direct_access"
@@ -169,15 +156,6 @@ Six authenticators, selected via the `authenticator` field:
 
 All Snowflake authenticators share: `account`, `warehouse`, and optional `role`, `database`, `schema`.
 
-### DuckDB for Local Development
-
-```yaml
-connections:
-  local:
-    type: duckdb
-    path: ":memory:"       # or "./my.db" for file-backed
-```
-
 ### Active Session Auto-Detection (SPCS / Snowflake Notebooks)
 
 When running inside Snowflake (notebooks, stored procedures, UDFs), PyRel auto-detects the active Snowpark session. No config file needed -- `create_config()` returns a `ConfigFromActiveSession` that wraps `get_active_session()`.
@@ -233,22 +211,11 @@ cfg = create_config(
 )
 ```
 
-### DuckDB Config in Code
-
-```python
-from relationalai.config import create_config, DuckDBConnection
-
-cfg = create_config(
-    connections={"local": DuckDBConnection(path=":memory:")}
-)
-```
-
 ### Getting Sessions from Config
 
 ```python
 session = cfg.get_session()                              # default connection
 session = cfg.get_session(SnowflakeConnection)           # typed, default
-session = cfg.get_session(DuckDBConnection)               # typed, default
 conn = cfg.get_connection(SnowflakeConnection, name="sf") # by name
 
 # Or from the model (session is lazy — triggers on first job):
