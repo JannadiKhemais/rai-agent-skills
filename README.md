@@ -29,8 +29,6 @@ The `rai_developer` role is needed to execute PyRel programs.
 
 ## Installation
 
-TODO while the repo is private, use `git@github.com:RelationalAI/rai-agent-skills.git` instead of `RelationalAI/rai-agent-skills`
-
 ### Generic
 
 [Vercel's skills CLI](https://github.com/vercel-labs/skills) (requres `npm` v5.2.0+) helps you manage & update skills for most coding agents.
