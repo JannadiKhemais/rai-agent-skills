@@ -1,0 +1,11 @@
+#  Applies to all files. Tells Git to auto-detect whether a file is text or binary and handle line endings
+#  automatically:
+#  - Text files: Git normalizes line endings to LF in the repository (.git store), and converts to the OS-native line
+#   ending on checkout (CRLF on Windows, LF on Unix/Mac).
+#  - Binary files: Git leaves them untouched — no line ending conversion.
+* text=auto
+
+# Applies to all .png files. binary is a shorthand for -text -diff:
+# - -text: Disables all line ending conversion (overrides text=auto for these files).
+# - -diff: Tells Git not to show text diffs for these files (shows Binary files differ instead).
+*.png binary
