@@ -55,11 +55,11 @@ model.define(Product.new(model.data(df).to_schema()))
 result = model.where(Product.cost > 10).select(Product.id, Product.cost).to_df()
 
 # Solver
-s = Problem(model, Float)
-s.solve_for(Product.x_qty, type="cont", lower=0, name=["qty", Product.id])
-s.satisfy(model.require(aggs.sum(Product.x_qty) <= 100))
-s.minimize(aggs.sum(Product.cost * Product.x_qty))
-s.solve("highs")
+p = Problem(model, Float)
+p.solve_for(Product.x_qty, type="cont", lower=0, name=["qty", Product.id])
+p.satisfy(model.require(aggs.sum(Product.x_qty) <= 100))
+p.minimize(aggs.sum(Product.cost * Product.x_qty))
+p.solve("highs")
 ```
 
 ---
@@ -282,10 +282,10 @@ x = model.Relationship(f"{Float:x}")
 y = model.Relationship(f"{Float:y}")
 
 # Use in solver:
-s = Problem(model, Float)
-s.solve_for(x, name="x", lower=-100.0, upper=5.0, start=0.0)
-s.solve_for(y, name="y", lower=-100.0, upper=5.0, start=0.0)
-s.minimize((1 - x) ** 2 + 100 * (y - x**2) ** 2)
+p = Problem(model, Float)
+p.solve_for(x, name="x", lower=-100.0, upper=5.0, start=0.0)
+p.solve_for(y, name="y", lower=-100.0, upper=5.0, start=0.0)
+p.minimize((1 - x) ** 2 + 100 * (y - x**2) ** 2)
 ```
 
 **Global counts/values:** For simple cases, assign directly to a Python variable:

@@ -21,20 +21,20 @@ LTLSegment.limit = model.Property(f"{LTLSegment} has {Float:limit}")
 LTLSegment.cost = model.Property(f"{LTLSegment} has {Float:cost}")
 
 # --- Decision variables ---
-s = Problem(model, Float)
+p = Problem(model, Float)
 t = Integer.ref()
 departure_days = std.common.range(1, 5)
 
 # Inventory variable per freight group per day
 FreightGroup.x_inv = model.Property(f"{FreightGroup} on day {Integer:t} has {Float:inv}")
 x_inv = Float.ref()
-s.solve_for(FreightGroup.x_inv(t, x_inv), type="cont", lower=0,
+p.solve_for(FreightGroup.x_inv(t, x_inv), type="cont", lower=0,
             name=["inv", FreightGroup.name, t], where=[t == departure_days])
 
 # Standalone Property (not attached to any concept) — per-day TL indicator
 bin_tl = model.Property(f"departure day {Integer:t} has {Float:bin_tl}")
 y_bin_tl = Float.ref()
-s.solve_for(bin_tl(t, y_bin_tl), type="bin",
+p.solve_for(bin_tl(t, y_bin_tl), type="bin",
             name=["y_bin_tl", t], where=[t == departure_days])
 
 # --- LTL piecewise cost with self-join on segment refs ---
@@ -69,6 +69,6 @@ total_ltl_bin_cost = (LTLSegment1.cost * LTLSegment1.limit) * sum(
 
 # model.union() combines all 4 disjoint cost terms into one summable expression
 total_cost = sum(model.union(total_inv_cost, total_tl_cost, total_ltl_rem_cost, total_ltl_bin_cost))
-s.minimize(total_cost)
+p.minimize(total_cost)
 
-s.solve("highs", time_limit_sec=60)
+p.solve("highs", time_limit_sec=60)

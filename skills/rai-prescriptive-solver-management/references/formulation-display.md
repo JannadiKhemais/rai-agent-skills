@@ -13,7 +13,7 @@ Before solving, inspect the mathematical formulation:
 
 ```python
 # Print the full formulation (variables, constraints, objectives)
-s.display()
+p.display()
 
 # Formulation metrics
 s.num_variables        # Total registered variables
@@ -26,7 +26,7 @@ Use `s.display()` to verify the formulation looks correct before calling `s.solv
 
 ```python
 # Example: diet problem verification
-s.display()
+p.display()
 assert s.num_variables == len(food_csv)
 assert s.num_min_objectives == 1
 assert s.num_constraints == 2 * len(nutrient_csv)
@@ -123,11 +123,11 @@ After inspecting `s.display()`, compare the formulation against expected structu
 Pass the return value of `solve_for()`, `minimize()`, `maximize()`, or `satisfy()` to inspect just that part of the formulation:
 
 ```python
-x_vars = s.solve_for(Route.x_flow, name=["flow", Route.origin, Route.dest], lower=0)
-cap = s.satisfy(model.require(Route.x_flow <= Route.capacity), name="cap")
+x_vars = p.solve_for(Route.x_flow, name=["flow", Route.origin, Route.dest], lower=0)
+cap = p.satisfy(model.require(Route.x_flow <= Route.capacity), name="cap")
 
-s.display(x_vars)  # just the flow variables
-s.display(cap)     # just the capacity constraints
+p.display(x_vars)  # just the flow variables
+p.display(cap)     # just the capacity constraints
 ```
 
 Useful for debugging specific parts of a large formulation without printing everything.
@@ -140,7 +140,7 @@ After calling `s.solve()` with `print_format=`, access the text representation v
 
 ```python
 # Get LP format (useful for debugging)
-s.solve("highs", print_format="lp", print_only=True)
+p.solve("highs", print_format="lp", print_only=True)
 print(s.printed_model)
 
 # Available formats: "moi" (MOI text), "latex", "mof" (MOI JSON), "lp", "mps", "nl" (AMPL)
@@ -156,15 +156,15 @@ The same `Problem` instance can be solved multiple times. Constraints accumulate
 
 ```python
 # First solve
-s.solve("highs", time_limit_sec=60)
-print(s.objective_value)  # Result from solve 1
+p.solve("highs", time_limit_sec=60)
+print(p.objective_value)  # Result from solve 1
 
 # Add more constraints
-s.satisfy(model.require(Route.x_flow >= min_flow))
+p.satisfy(model.require(Route.x_flow >= min_flow))
 
 # Re-solve — previous constraints + new constraint
-s.solve("highs", time_limit_sec=60)
-print(s.objective_value)  # Result from solve 2
+p.solve("highs", time_limit_sec=60)
+print(p.objective_value)  # Result from solve 2
 ```
 
 For different constraint sets (e.g., parametric solving), create a fresh `Problem` per scenario.

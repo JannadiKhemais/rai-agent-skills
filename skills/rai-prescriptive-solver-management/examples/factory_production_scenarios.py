@@ -27,10 +27,10 @@ for factory_name in factory_names:
     this_product = Product.factory.name(factory_name)
 
     # 2. Fresh Problem — clean separation per partition
-    s = Problem(model, Float)
+    p = Problem(model, Float)
 
     # 3. solve_for with where= and populate=False
-    s.solve_for(
+    p.solve_for(
         Product.x_quantity,
         lower=0, upper=Product.demand,
         name=Product.name,
@@ -39,20 +39,20 @@ for factory_name in factory_names:
     )
 
     # 4. Formulation (objective + constraints)
-    s.maximize(sum(Product.profit * Product.x_quantity).where(this_product))
-    s.satisfy(model.require(
+    p.maximize(sum(Product.profit * Product.x_quantity).where(this_product))
+    p.satisfy(model.require(
         sum(Product.x_quantity / Product.rate) <= Factory.avail
     ).where(this_product, Factory.name(factory_name)))
 
     # 5. Solve
-    s.solve("highs", time_limit_sec=60)
+    p.solve("highs", time_limit_sec=60)
 
     # 6. Collect results — variable_values() works even with populate=False
-    var_df = s.variable_values().to_df()
+    var_df = p.variable_values().to_df()
     scenario_results.append({
         "factory": factory_name,
-        "status": str(s.termination_status),
-        "profit": s.objective_value,
+        "status": str(p.termination_status),
+        "profit": p.objective_value,
         "plan": var_df[var_df["value"] > 0.001],
     })
 

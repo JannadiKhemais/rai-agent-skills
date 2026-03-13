@@ -35,14 +35,14 @@ Product.x_select = model.Property(f"{Product} in {Week} has {Discount} if {Float
 Product.x_sales = model.Property(f"{Product} in {Week} at {Discount} has {Float:y}")
 
 # --- .where() joins binding multiple refs in one fragment ---
-s = Problem(model, Float)
-s.solve_for(Product.x_select(w, d, x), type="bin",
+p = Problem(model, Float)
+p.solve_for(Product.x_select(w, d, x), type="bin",
             name=["select", Product.name, w.num, d.discount_pct])
-s.solve_for(Product.x_sales(w, d, y), type="cont", lower=0,
+p.solve_for(Product.x_sales(w, d, y), type="cont", lower=0,
             name=["sales", Product.name, w.num, d.discount_pct])
 
 # Constraint joining two multiarity property bindings in one .where()
-s.satisfy(model.where(
+p.satisfy(model.where(
     Product.x_select(w, d, x),   # binds w, d, x
     Product.x_sales(w, d, y),    # binds same w, d — equi-join on week and discount
 ).require(
@@ -51,7 +51,7 @@ s.satisfy(model.where(
 
 # Second ref set for pairwise week comparison
 d2, w2, x2 = Discount.ref(), Week.ref(), Float.ref()
-s.satisfy(model.where(
+p.satisfy(model.where(
     Product.x_select(w, d, x),
     Product.x_select(w2, d2, x2),
     w2.num == w.num + 1,          # temporal adjacency join
@@ -63,5 +63,5 @@ revenue = sum(
     Product.initial_price * (1 - d.discount_pct / 100) * x
 ).where(Product.x_sales(w, d, x))   # binds x to sales quantity here
 
-s.maximize(revenue)
-s.solve("highs", time_limit_sec=60)
+p.maximize(revenue)
+p.solve("highs", time_limit_sec=60)

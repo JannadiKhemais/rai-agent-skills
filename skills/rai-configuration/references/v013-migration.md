@@ -26,7 +26,7 @@ s = SolverModel(model, "cont", use_pb=True)
 
 # v1
 from relationalai.semantics.reasoners.prescriptive import Problem
-s = Problem(model, Float)   # use_pb removed; pass Float or Integer type
+p = Problem(model, Float)   # use_pb removed; pass Float or Integer type
 ```
 
 ### Solver Creation
@@ -34,10 +34,10 @@ s = Problem(model, Float)   # use_pb removed; pass Float or Integer type
 ```python
 # v0.13
 solver = Solver("highs", resources=model._to_executor().resources)
-s.solve(solver, time_limit_sec=60)
+p.solve(solver, time_limit_sec=60)
 
 # v1
-s.solve("highs", time_limit_sec=60)  # pass solver name directly as string
+p.solve("highs", time_limit_sec=60)  # pass solver name directly as string
 ```
 
 ### Imports

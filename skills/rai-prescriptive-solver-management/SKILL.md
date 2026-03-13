@@ -43,32 +43,32 @@ from relationalai.semantics.std import aggregates as aggs
 from relationalai.semantics.reasoners.prescriptive import Problem
 
 # 1. Create Problem (Float for LP/MILP/NLP, Integer for CP)
-s = Problem(model, Float)
+p = Problem(model, Float)
 
 # 2. Register variables (type: "cont", "int", "bin"; bounds; naming)
-s.solve_for(Route.x_flow, type="cont", lower=0, upper=Route.capacity,
+p.solve_for(Route.x_flow, type="cont", lower=0, upper=Route.capacity,
             name=["flow", Route.origin, Route.dest])
-s.solve_for(Facility.x_open, type="bin", name=["open", Facility.id])
+p.solve_for(Facility.x_open, type="bin", name=["open", Facility.id])
 
 # 3. Add constraints (model.require inside s.satisfy)
-s.satisfy(model.require(aggs.sum(Route.x_flow).per(Customer) >= Customer.demand))
-s.satisfy(model.require(Route.x_flow <= Route.capacity * Facility.x_open))
+p.satisfy(model.require(aggs.sum(Route.x_flow).per(Customer) >= Customer.demand))
+p.satisfy(model.require(Route.x_flow <= Route.capacity * Facility.x_open))
 
 # 4. Set objective (exactly one minimize or maximize)
-s.minimize(aggs.sum(Route.cost * Route.x_flow))
+p.minimize(aggs.sum(Route.cost * Route.x_flow))
 
 # 5. Pre-solve check — always inspect before solving
-s.display()
+p.display()
 assert s.num_variables > 0, "No variables created"
 assert s.num_constraints > 0, "No constraints created"
 
 # 6. Solve — solver choice depends on problem type and user license
 #    See "Solver Selection" section for decision rules
-s.solve(solver_name, time_limit_sec=120)
-s.display_solve_info()
+p.solve(solver_name, time_limit_sec=120)
+p.display_solve_info()
 # Solvers: "highs" (LP/MILP, open-source), "gurobi" (LP/MILP/QP/QCP, license required),
 #          "minizinc" (CP, open-source), "ipopt" (NLP, open-source)
-# Check: s.termination_status → "optimal" | "infeasible" | "unbounded" | "time_limit"
+# Check: p.termination_status → "optimal" | "infeasible" | "unbounded" | "time_limit"
 ```
 
 ---
@@ -176,14 +176,14 @@ In v1, pass the solver name as a string directly to `s.solve()` — no separate 
 ```python
 from relationalai.semantics import Float, Integer
 
-s = Problem(model, Float)    # LP, NLP, MIP with continuous relaxation
-s = Problem(model, Integer)  # Pure integer / constraint programming
+p = Problem(model, Float)    # LP, NLP, MIP with continuous relaxation
+p = Problem(model, Integer)  # Pure integer / constraint programming
 
 # Solver choice depends on problem type AND user license:
-s.solve("highs", time_limit_sec=60)    # LP/MIP (open-source)
-s.solve("gurobi", time_limit_sec=60)   # LP/MIP/QP/QCP (license required)
-s.solve("minizinc", time_limit_sec=60) # CP (open-source)
-s.solve("ipopt", time_limit_sec=60)    # NLP (open-source)
+p.solve("highs", time_limit_sec=60)    # LP/MIP (open-source)
+p.solve("gurobi", time_limit_sec=60)   # LP/MIP/QP/QCP (license required)
+p.solve("minizinc", time_limit_sec=60) # CP (open-source)
+p.solve("ipopt", time_limit_sec=60)    # NLP (open-source)
 ```
 
 **Do not default to any single solver.** Always select based on the problem type (see Decision Rules above) and confirm the user has the required license (Gurobi is commercial). The second argument (`Float` or `Integer`) sets the default numeric type. Variables can override with `type="bin"`, `type="int"`, or `type="cont"` in `solve_for()`.
@@ -206,7 +206,7 @@ Requires all variables in the group to take pairwise distinct values. Returns an
 
 ```python
 # Sudoku: all different per row, per column, per box
-s.satisfy(
+p.satisfy(
     model.require(
         all_different(x).per(i),                              # each row
         all_different(x).per(j),                              # each column
@@ -223,10 +223,10 @@ Creates `left => right` constraint. Returns an `Expression` (not an Aggregate �
 
 ```python
 # If x = 1, then y must = 1
-s.satisfy(model.require(implies(x == 1, y == 1)))
+p.satisfy(model.require(implies(x == 1, y == 1)))
 
 # If facility is open, production must be positive
-s.satisfy(model.require(implies(Facility.x_open == 1, Facility.x_production >= 1)))
+p.satisfy(model.require(implies(Facility.x_open == 1, Facility.x_production >= 1)))
 ```
 
 ### `special_ordered_set_type_1` — SOS1 at most one non-zero
@@ -237,7 +237,7 @@ At most one variable in the set can be non-zero. Used for selecting exactly one 
 
 ```python
 # At most one facility in a region can be open
-s.satisfy(model.require(special_ordered_set_type_1(Facility.index, Facility.x_open).per(Region)))
+p.satisfy(model.require(special_ordered_set_type_1(Facility.index, Facility.x_open).per(Region)))
 ```
 
 Arguments: `(index_expression, variable_expression)` where `index` defines the ordering.
@@ -250,7 +250,7 @@ At most 2 variables can be non-zero, and they must be consecutive in the given o
 
 ```python
 # PWL: at most 2 consecutive weights non-zero
-s.satisfy(model.require(special_ordered_set_type_2(Point.i, Point.w)))
+p.satisfy(model.require(special_ordered_set_type_2(Point.i, Point.w)))
 ```
 
 Arguments: `(index_expression, variable_expression)` where `index` defines the ordering.
@@ -297,7 +297,7 @@ Run five checks before calling `s.solve()`: (1) entity population — `s.num_var
 
 ```python
 # Minimum pre-solve checklist
-s.display()
+p.display()
 assert s.num_variables > 0, "No variables"
 assert s.num_constraints > 0, "No constraints"
 assert s.num_min_objectives + s.num_max_objectives == 1, "Need exactly one objective"
@@ -398,10 +398,10 @@ When diagnosing infeasibility or unboundedness, classify root causes using these
 
 ```python
 # Solver choice depends on problem type and license — see Decision Rules above
-s.solve(solver_name, time_limit_sec=60)
+p.solve(solver_name, time_limit_sec=60)
 
 # Post-solve summary
-s.display_solve_info()
+p.display_solve_info()
 ```
 
 **Termination status:** `s.termination_status` returns `optimal`, `infeasible`, `unbounded`, or `time_limit`. `optimal` means the best feasible solution was found; `infeasible` means no solution satisfies all constraints; `unbounded` means the objective can improve without limit (missing bounds); `time_limit` means a feasible but possibly suboptimal solution was found within the time allowed.
@@ -409,8 +409,8 @@ s.display_solve_info()
 **Debugging failed solves:** After a non-optimal solve, check `s.error` for the solver-level error message — often more informative than the Python exception:
 
 ```python
-s.solve("highs", time_limit_sec=60)
-if s.termination_status != "optimal":
+p.solve("highs", time_limit_sec=60)
+if p.termination_status != "optimal":
     print(s.error)  # Solver-level error details
 ```
 
@@ -435,12 +435,12 @@ These parameters are solver-independent and work with any solver:
 
 ```python
 # Solver-independent options (portable across all solvers)
-s.solve("highs", time_limit_sec=300, silent=True)
-s.solve("highs", relative_gap_tolerance=0.01)  # 1% MIP gap
-s.solve("minizinc", solution_limit=10)          # Multiple solutions
+p.solve("highs", time_limit_sec=300, silent=True)
+p.solve("highs", relative_gap_tolerance=0.01)  # 1% MIP gap
+p.solve("minizinc", solution_limit=10)          # Multiple solutions
 
 # Debugging: get LP format of the solver model
-s.solve("highs", print_format="lp", print_only=True)
+p.solve("highs", print_format="lp", print_only=True)
 print(s.printed_model)  # Access the text representation
 ```
 
@@ -450,13 +450,13 @@ Any additional keyword arguments are passed as raw solver-specific options. A wa
 
 ```python
 # HiGHS-specific
-s.solve("highs", time_limit_sec=120, presolve="on", threads=4)
+p.solve("highs", time_limit_sec=120, presolve="on", threads=4)
 
 # Gurobi-specific (note: CamelCase parameter names)
-s.solve("gurobi", time_limit_sec=120, MIPFocus=1, Presolve=2, Threads=0)
+p.solve("gurobi", time_limit_sec=120, MIPFocus=1, Presolve=2, Threads=0)
 
 # Ipopt-specific
-s.solve("ipopt", time_limit_sec=60, max_iter=1000, tol=1e-8, mu_strategy="adaptive")
+p.solve("ipopt", time_limit_sec=60, max_iter=1000, tol=1e-8, mu_strategy="adaptive")
 ```
 
 **Key solver-specific parameters:**
@@ -503,30 +503,80 @@ For nonlinear solvers like Ipopt, provide initial values via the `start=` parame
 # Standalone variable with warm start (Rosenbrock example)
 x = model.Relationship(f"{Float:x}")
 y = model.Relationship(f"{Float:y}")
-s.solve_for(x, name="x", lower=-100.0, upper=5.0, start=0.0)
-s.solve_for(y, name="y", lower=-100.0, upper=5.0, start=0.0)
-s.minimize((1 - x) ** 2 + 100 * (y - x**2) ** 2)
-s.solve("ipopt", log_to_console=True)
+p.solve_for(x, name="x", lower=-100.0, upper=5.0, start=0.0)
+p.solve_for(y, name="y", lower=-100.0, upper=5.0, start=0.0)
+p.minimize((1 - x) ** 2 + 100 * (y - x**2) ** 2)
+p.solve("ipopt", log_to_console=True)
 # termination_status: "LOCALLY_SOLVED" (Ipopt finds local optima, not global)
 ```
 
 **Standalone (concept-free) variables** use `model.Relationship(f"{Float:name}")` instead of `model.Property`. This pattern is for scalar optimization variables not attached to any concept (e.g., Rosenbrock, single-variable NLP). For concept-attached variables, use `model.Property` as usual.
 
-### Parametric solving
+### Scenario analysis (what-if)
 
-Create a fresh `Problem` per scenario — constraints cannot be removed once added:
+Two patterns for exploring how solutions change under different assumptions:
+
+**Pattern 1: Scenario Concept — parameter variations (preferred)**
+
+When the same problem structure is solved with different parameter values (budget, demand,
+service levels), model scenarios as a first-class Concept. One solve handles all scenarios:
 
 ```python
-for min_return in range(20, 60, 20):
-    s = Problem(model, Float)
-    s.solve_for(Stock.quantity, name=["x", Stock.index])
-    s.minimize(risk)
-    s.satisfy(bounds)
-    s.satisfy(budget)
-    s.satisfy(model.require(sum(Stock.returns * Stock.quantity) >= min_return))
-    s.display()
-    # s.solve("highs", time_limit_sec=10)
+# Scenario with parameter data
+Scenario = Concept("Scenario", identify_by={"name": String})
+Scenario.min_return = Property(f"{Scenario} has {Float:min_return}")
+scenario_data = model.data(
+    [("conservative", 10), ("moderate", 20), ("aggressive", 30)],
+    columns=["name", "min_return"],
+)
+model.define(Scenario.new(scenario_data.to_schema()))
+
+# Decision variable indexed by Scenario
+Stock.x_quantity = Property(f"{Stock} in {Scenario} has {Float:quantity}")
+x_qty = Float.ref()
+
+# Constraint references Scenario property
+return_ok = model.where(
+    Stock.x_quantity(Scenario, x_qty),
+).require(
+    sum(x_qty * Stock.returns).per(Scenario) >= Scenario.min_return
+)
+
+# Single solve — all scenarios simultaneously
+p = Problem(model, Float)
+p.solve_for(Stock.x_quantity(Scenario, x_qty), name=[Scenario.name, "qty", Stock.index])
+p.satisfy(return_ok)
+p.minimize(sum(risk))
+p.solve("highs", time_limit_sec=60)
+
+# Results: query with scenario filter
+model.select(Scenario.name, Stock.index, Stock.x_quantity).where(
+    Stock.x_quantity(Scenario, x_qty), x_qty > 0.001
+).inspect()
 ```
+
+**Pattern 2: Loop + where= filter — entity selection/exclusion**
+
+When different entity subsets are tested (exclude a supplier, solve per region),
+loop with `where=[]` scoping. Each iteration is an independent sub-problem:
+
+```python
+for excluded in [None, "SupplierC", "SupplierB"]:
+    p = Problem(model, Float)
+    if excluded:
+        active = Order.supplier.name != excluded
+        p.solve_for(Order.x_qty, where=[active], populate=False, ...)
+    else:
+        p.solve_for(Order.x_qty, populate=False, ...)
+    p.maximize(...)
+    p.solve("highs", time_limit_sec=60)
+    # variable_values().to_df() for per-iteration results
+```
+
+**When to use which:**
+- Parameter varies (budget, threshold, multiplier) → Scenario Concept (single solve)
+- Entity excluded/selected → Loop + where= (multiple solves)
+- Independent sub-problems (per-factory) → Loop + where= (multiple solves)
 
 ---
 
@@ -582,8 +632,8 @@ Key v0.13 to v1 migration changes: `SolverModel(model, "cont")` becomes `Problem
 
 | Pattern | Description | File |
 |---|---|---|
-| Partitioned solving | Fresh Problem per factory partition, `populate=False`, result collection | [examples/factory_production_scenarios.py](examples/factory_production_scenarios.py) |
-| Parametric what-if | Inline formulation in scenario loop, sweep over min-return targets | [examples/portfolio_balancing_scenarios.py](examples/portfolio_balancing_scenarios.py) |
+| Scenario Concept | Scenario as data concept, single solve, multi-arg variables, `model.select()` results | [examples/portfolio_balancing_scenarios.py](examples/portfolio_balancing_scenarios.py) |
+| Entity exclusion / partitioned | Loop + `where=[]` filter, `populate=False`, `variable_values()` results | [examples/factory_production_scenarios.py](examples/factory_production_scenarios.py) |
 
 ---
 
