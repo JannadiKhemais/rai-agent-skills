@@ -1,6 +1,8 @@
 {
   "name": "RelationalAI",
-  "description": "RelationalAI semantic models and advanced reasoners",
+  "metadata": {
+    "description": "RelationalAI semantic models and advanced reasoners"
+  },
   "owner": {
     "name": "RelationalAI"
   },
