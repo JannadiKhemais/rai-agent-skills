@@ -654,7 +654,9 @@ p.solve_for(Route.x_flow(Scenario, x_flow), name=[Scenario.name, Route.origin, R
 | **Objective trade-off** | Weights between competing goals | Cost-focused vs coverage-focused |
 | **Multi-parameter** | Two+ parameters varied simultaneously | Budget × demand multiplier matrix |
 
-See `rai-prescriptive-solver-management/examples/portfolio_balancing_scenarios.py`.
+**Why prefer Scenario Concept when possible:** Results are incorporated into the ontology — queryable via `model.select()` like any other property, composable with other model queries, and available for downstream derived properties. Loop results live outside the model in Python DataFrames. Use Loop only when the problem *structure* changes between scenarios (entities added/removed, constraint graph differs).
+
+See `rai-prescriptive-solver-management/examples/portfolio_balancing_scenarios.py`, `diet_scenarios.py`, `grid_interconnection_scenarios.py`.
 
 ### Loop + where= filter — entity exclusion and partitioned sub-problems
 

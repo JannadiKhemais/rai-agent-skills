@@ -1,6 +1,8 @@
-# Pattern: post-solve result extraction across multiple scenarios
+# Pattern: loop-based result extraction — results live in Python DataFrames (outside the model)
 # Key ideas: variable_values().to_df() extracts solution when populate=False;
 # solve_info().display() shows solver diagnostics; collect scenario results for comparison.
+# For Scenario Concept result extraction (results in the ontology via model.select()),
+# see portfolio_scenario_concept_results.py.
 
 from relationalai.semantics import Float, Integer, Model, sum
 from relationalai.semantics.reasoners.prescriptive import Problem

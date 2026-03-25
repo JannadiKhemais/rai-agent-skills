@@ -590,9 +590,19 @@ for excluded in [None, "SupplierC", "SupplierB"]:
 ```
 
 **When to use which:**
-- Parameter varies (budget, threshold, multiplier) → Scenario Concept (single solve)
-- Entity excluded/selected → Loop + where= (multiple solves)
-- Independent sub-problems (per-factory) → Loop + where= (multiple solves)
+
+| Criterion | Scenario Concept | Loop + where= |
+|-----------|-----------------|---------------|
+| What varies | Parameter values (budget, demand, thresholds) | Which entities participate (exclude supplier, solve per factory) |
+| Problem structure | Same constraints, same entities, different parameter values | Constraints or entity sets change between scenarios |
+| Number of solves | One (all scenarios simultaneously) | One per scenario |
+| Where results live | **In the ontology** — queryable via `model.select()`, composable with other model queries, available for downstream derived properties | In Python DataFrames via `variable_values().to_df()` — outside the model |
+| Problem size | Cross-product of entities × scenarios (can be large) | Each sub-problem is small and independent |
+
+**Decision rule:**
+- Only parameter values change → **Scenario Concept**. Results are part of the ontology, which is the key advantage — they can be queried, joined, and composed like any other model data.
+- Entities are added/removed or constraint structure changes → **Loop + where=**. Required when the problem graph itself differs between scenarios (e.g., removing a supplier changes which SupplyOrders exist).
+- Independent partitions (per-factory, per-region) → **Loop + where=**. Each partition is a separate problem with no cross-partition coupling.
 
 ---
 
@@ -643,8 +653,11 @@ When entity creation produces ZERO entities (cross-product or filtered concept h
 
 | Pattern | Description | File |
 |---|---|---|
-| Scenario Concept | Scenario as data concept, single solve, multi-arg variables, `model.select()` results | [examples/portfolio_balancing_scenarios.py](examples/portfolio_balancing_scenarios.py) |
-| Entity exclusion / partitioned | Loop + `where=[]` filter, `populate=False`, `variable_values()` results | [examples/factory_production_scenarios.py](examples/factory_production_scenarios.py) |
+| Scenario Concept (portfolio) | Scenario as data concept, single solve, multi-arg variables, `model.select()` results | [examples/portfolio_balancing_scenarios.py](examples/portfolio_balancing_scenarios.py) |
+| Scenario Concept (diet) | Scaling constraint bounds by scenario parameter (`Nutrient.min * Scenario.nutrient_scaling`) | [examples/diet_scenarios.py](examples/diet_scenarios.py) |
+| Scenario Concept (grid MILP) | Two binary variable types indexed by Scenario, `.per(Substation, Scenario)` grouping, cross-variable budget | [examples/grid_interconnection_scenarios.py](examples/grid_interconnection_scenarios.py) |
+| Entity exclusion (supplier) | Loop + `where=[]` with `!=` filter to exclude entities, `populate=False`, `variable_values()` results | [examples/supplier_reliability_scenarios.py](examples/supplier_reliability_scenarios.py) |
+| Partitioned sub-problems (factory) | Loop + `where=[]` filter per partition, `populate=False`, `variable_values()` results | [examples/factory_production_scenarios.py](examples/factory_production_scenarios.py) |
 
 ---
 

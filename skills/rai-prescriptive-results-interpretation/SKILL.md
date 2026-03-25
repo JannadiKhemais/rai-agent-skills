@@ -242,9 +242,9 @@ Constraints defined over concepts automatically apply to new data added between 
 
 ### Scenario / parametric solving
 
-**Scenario Concept (parameter variations):** Results from a single solve contain a scenario dimension. Query with `model.select(Scenario.name, ...).where(Entity.x_var(Scenario, x_ref), x_ref > threshold)`. Group by `Scenario.name` for comparison tables. Variables are multi-argument Properties indexed by (Entity, Scenario) — the scenario column is part of the variable identity.
+**Scenario Concept (parameter variations) — preferred when applicable:** Results from a single solve are incorporated into the ontology — queryable via `model.select(Scenario.name, ...).where(Entity.x_var(Scenario, x_ref), x_ref > threshold)`, composable with other model queries, and available for downstream derived properties. Group by `Scenario.name` for comparison tables. Variables are multi-argument Properties indexed by (Entity, Scenario) — the scenario column is part of the variable identity. Use when only parameter values change between scenarios (budget, demand, thresholds). See [examples/portfolio_scenario_concept_results.py](examples/portfolio_scenario_concept_results.py).
 
-**Loop + where= (entity exclusion):** Each iteration produces a separate `variable_values().to_df()`. Collect per-iteration results in a list, label by scenario. Use `populate=False` to prevent cross-iteration contamination.
+**Loop + where= (entity exclusion):** Each iteration produces a separate `variable_values().to_df()` — results live in Python DataFrames, outside the model. Collect per-iteration results in a list, label by scenario. Use `populate=False` to prevent cross-iteration contamination. Required when the problem *structure* changes between scenarios (entities added/removed, constraint graph differs). See [examples/portfolio_results.py](examples/portfolio_results.py).
 
 ---
 
@@ -696,7 +696,8 @@ The constraints are mutually contradictory or over-restrictive. Before adding an
 
 | Pattern | Description | File |
 |---|---|---|
-| Scenario result extraction | `variable_values().to_df()`, `solve_info().display()`, status/objective access, scenario comparison table | [examples/portfolio_results.py](examples/portfolio_results.py) |
+| Scenario Concept results | Results in ontology via `model.select(Scenario.name, ...)`, per-scenario aggregation, comparison queries | [examples/portfolio_scenario_concept_results.py](examples/portfolio_scenario_concept_results.py) |
+| Loop-based results | `variable_values().to_df()`, `solve_info().display()`, status/objective access, scenario comparison table | [examples/portfolio_results.py](examples/portfolio_results.py) |
 
 ---
 
