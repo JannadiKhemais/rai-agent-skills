@@ -12,15 +12,16 @@ description: Interprets optimization solver output including solution extraction
 
 **When to use:**
 - Extracting solution values after a successful solve
-- Interpreting solver status (OPTIMAL, INFEASIBLE, DUAL_INFEASIBLE, TIME_LIMIT)
-- Assessing whether an "optimal" solution is actually meaningful (trivial solution detection)
+- Interpreting any solver status after solve completes (OPTIMAL, INFEASIBLE, DUAL_INFEASIBLE, TIME_LIMIT)
+- Diagnosing why a solved-OPTIMAL result is trivial, wrong, or has coverage gaps (all zeros, all at bounds, concentrated on one entity)
+- Diagnosing INFEASIBLE status (demand vs capacity, contradictory constraints, bound conflicts)
+- Assessing TIME_LIMIT results (gap interpretation, whether to increase time or simplify model)
 - Explaining results to stakeholders in business language
 - Running sensitivity / what-if analysis
-- Diagnosing why a solution looks wrong (all zeros, all at bounds, concentrated on one entity)
 
 **When NOT to use:**
-- Formulation patterns (variables, constraints, objectives) — see `rai-prescriptive-problem-formulation`
-- Solver configuration and execution — see `rai-prescriptive-solver-management`
+- Designing or fixing the formulation itself (adding constraints, changing variables) — see `rai-prescriptive-problem-formulation`
+- Solver configuration, parameter tuning, or solver-level failures — see `rai-prescriptive-solver-management`
 - Query syntax (select, aggregation, joins) — see `rai-querying`
 
 **Overview:**
@@ -37,7 +38,7 @@ description: Interprets optimization solver output including solution extraction
 After a solve completes, interpret results in this order:
 
 1. **Check status** (Status Interpretation) — Is the solve OPTIMAL, INFEASIBLE, DUAL_INFEASIBLE, or TIME_LIMIT?
-   - If INFEASIBLE or ERROR: stop, diagnose root cause (Diagnosis Checklist), do not present results
+   - If INFEASIBLE, DUAL_INFEASIBLE, or any error status: stop, diagnose root cause (Diagnosis Checklist), do not present results
    - If TIME_LIMIT with large gap (>10%): flag uncertainty, consider increasing time or simplifying
 2. **Assess quality** (Quality Assessment) — Is the solution meaningful or trivially empty?
    - Check non-zero ratio, objective value plausibility, variable distribution
@@ -335,7 +336,7 @@ The solvability ladder defines progressive quality gates for an optimization for
 |-------|------|---------------|-------|
 | **generates** | Code generates | LLM produced syntactically valid PyRel | Code parses without syntax errors |
 | **compiles** | Compiles | `display()` succeeds — formulation converts to solver-ready form | `display()` returns without error; variables, constraints, objective all registered |
-| **solves** | Solves | Solver accepts the problem and returns a result (any status, no crash/error) | `p.termination_status()` is not ERROR/None; `solve()` completes |
+| **solves** | Solves | Solver accepts the problem and returns a result (any status, no crash/error) | `solve()` completes without exception; `p.solve_info()` returns a status |
 | **optimal** | OPTIMAL | Solver found a proven optimum (or TIME_LIMIT with acceptable gap <5%) | `p.termination_status() == "OPTIMAL"` or `(status == "TIME_LIMIT" and gap < 0.05)` |
 | **non-trivial** | Non-trivial | Solution has meaningful activity — not all zeros, not vacuous | `p.objective_value() != 0`, `non_zero_ratio > 0.01`, not all variables at bounds |
 | **meaningful** | Meaningful | Decisions are actionable — right scale, distribution, entity coverage | Domain-specific: quantities match demand scale, assignments cover tasks, flows balance |
@@ -413,29 +414,6 @@ A solution is **trivial** when the solver technically found an optimum, but the 
 A **forcing constraint** is one that requires decision variables to take positive values. Without them, minimize objectives will produce all-zero solutions.
 
 **Diagnosis:** If the objective is minimize and the solution is all zeros, look for which requirements from the data should force positive activity, and verify those constraints exist and their joins match actual data. For common forcing constraint patterns and code examples, see `rai-prescriptive-problem-formulation/constraint-formulation.md` > Forcing Constraints.
-
-## Forcing Constraint Principles
-
-Forcing constraints prevent the solver from finding a trivial "do nothing" solution (all variables = 0).
-
-**For minimize objectives**, at least one constraint must FORCE positive activity:
-- Demand satisfaction: `sum(Decision.x_qty).per(Demand) >= Demand.required`
-- Assignment completeness: `sum(Assignment.x_assign).per(Task) >= 1`
-- Coverage: `sum(Selection.x_selected).per(Region) >= Region.min_coverage`
-
-**For maximize objectives**, natural upper bounds serve as forcing constraints:
-- Capacity limits: `sum(Decision.x_qty).per(Resource) <= Resource.capacity`
-- Budget: `sum(Decision.x_qty * Decision.cost) <= budget`
-
-**Self-defeating constraints** (AVOID):
-- `var == 0` or `var <= 0` without `.where()` — forces everything to zero
-- Nested `require()` calls — causes syntax errors
-
-**Evaluation process:**
-1. List the decision variables and what they represent
-2. List constraints that could force positive activity
-3. Determine if "doing nothing" (all zeros) would violate any constraint
-4. Check variable connectivity: If there are MULTIPLE variable sets, are they ALL linked? Can one variable set satisfy its constraints while another stays at zero?
 
 ### Reasonableness Checks
 

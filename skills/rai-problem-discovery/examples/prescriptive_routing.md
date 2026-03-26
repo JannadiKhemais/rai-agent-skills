@@ -37,7 +37,7 @@ Source: hero-user-journey/src/hero_user_journey/ (supply chain domain, PyRel v1)
 - Constraint: if excluded supplier, force `ComponentFlow.quantity == 0` for that supplier's operations
 
 ### Reasoner handoff (→ prescriptive workflow)
-- `suggest_variables` → `suggest_constraints` → `suggest_objective` → `validate_formulation` → `solve_problem`
+- Define variables → define constraints → define objective → validate formulation → solve
 - Solver: HiGHS (LP/MIP)
 - Scenario comparison: baseline (all suppliers) vs offline (excluded supplier)
 

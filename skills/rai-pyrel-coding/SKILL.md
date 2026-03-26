@@ -492,6 +492,7 @@ Shipment.x_flow = model.Property(f'{Shipment} has {{x_flow:float}}')  # Number(3
 | Incorrect datetimes for inline data | Causes query errors or empty result sets | use eg `df["date"] = pd.to_datetime(df["date"]).dt.date` |
 | Entity-valued Property for concept-to-concept FK | Some model files use `model.Property(f"{Order} placed by {Customer:customer}")` for FKs | Recommended when the FK is many-to-one (each Order has exactly one Customer) — provides performance benefits and enforces the functional constraint. Use `model.Relationship()` only if the association is truly many-to-many or cardinality is uncertain |
 | Dynamic model loading loses module-level concepts | Using `importlib.util` to load a model file — concepts defined as module variables aren't on the model object | After loading, iterate module attributes and `setattr(model, name, obj)` for each `rai.Concept` instance |
+| Standalone script can't see base model data | New script creates `Model("same name")` but doesn't import the base model module — concept definitions and `define()` rules aren't in scope | Import the base model (e.g., `from base_model import model, Concept`) so all definitions execute in the same session |
 | Typo creates silent empty property | `Customer.nmae` (typo) silently creates an empty property via implicit property creation — no error | `create_config(model={"implicit_properties": False})` or set `implicit_properties: false` under `model:` in raiconfig.yaml |
 
 ### Avoid Python loops around `model.define()` / `model.require()`
@@ -540,17 +541,20 @@ When a query returns an empty DataFrame or wrong values, work through these chec
    Test: `Concept.rel.inspect()` — if empty, add a `model.define()` rule to populate it.
 
 4. **Check entity counts:**
-   ```python
-   model.select(count(Customer)).to_df()
-   ```
+
+```python
+model.select(count(Customer)).to_df()
+```
+
    If 0: data not loaded. Check table path and `model.define()` rules.
 
 5. **Isolate where conditions:**
-   ```python
-   model.where(A).select(X).to_df()            # works?
-   model.where(A, B).select(X).to_df()         # still works?
-   model.where(A, B, C).select(X).to_df()      # empty? → C is the culprit
-   ```
+
+```python
+model.where(A).select(X).to_df()            # works?
+model.where(A, B).select(X).to_df()         # still works?
+model.where(A, B, C).select(X).to_df()      # empty? → C is the culprit
+```
 
 ---
 

@@ -78,15 +78,18 @@ for excluded in excluded_suppliers:
     p.solve("highs", time_limit_sec=60)
 
     # Collect results per iteration (outside the model)
-    scenario_results.append({
-        "scenario": label,
-        "status": str(p.termination_status),
-        "objective": p.objective_value,
-    })
+    si = p.solve_info()
+    scenario_results.append(
+        {
+            "scenario": label,
+            "status": si.termination_status,
+            "objective": si.objective_value,
+        }
+    )
 
     var_df = p.variable_values().to_df()
     qty_df = var_df[var_df["name"].str.startswith("qty") & (var_df["value"] > 0.001)]
-    print(f"\n{label}: {p.termination_status}, cost={p.objective_value}")
+    print(f"\n{label}: {si.termination_status}, cost={si.objective_value}")
     print(qty_df.to_string(index=False))
 
 # Summary

@@ -555,8 +555,8 @@ For detailed introspection patterns (classification, property maps, data inspect
 | `ValidationError: Unused variable` | Same concept ref reused in independent aggregation contexts | Use separate named refs (`Customer.ref("t1")`, `Customer.ref("t2")`) |
 | Duplicate rows in aggregation results | Missing `distinct()` wrapper | Wrap `select(distinct(...))` — ALL columns must be inside `distinct()` |
 | Grouped aggregation returns N rows instead of grouped rows | Grouping by a property value without `distinct()` | Use `select(distinct(property.alias(...), agg.per(property).alias(...)))` — see Grouped Aggregation pattern above |
-| Subtype query returns TyperError | Accessing properties directly on subtype (`m.Subtype.prop`) | Bind subtype to parent: `m.where(m.Subtype(m.Parent)).select(m.Parent.prop.alias(...))` |
-| `rai.count(m.SubtypeName)` in bare select fails | Counting subtype directly without parent binding | Use `m.select(rai.count(m.Parent).alias("n")).where(m.Subtype(m.Parent))` |
+| Subtype query returns TypeError | Accessing properties directly on subtype (`model.Subtype.prop`) | Bind subtype to parent: `model.where(model.Subtype(model.Parent)).select(model.Parent.prop.alias(...))` |
+| `rai.count(model.SubtypeName)` in bare select fails | Counting subtype directly without parent binding | Use `model.select(rai.count(model.Parent).alias("n")).where(model.Subtype(model.Parent))` |
 | Mixing bare select with distinct | `select(X.name, distinct(X.cat))` — can't mix | Either wrap ALL columns in `distinct()` or none |
 | `.where()` on wrong target | Calling `.where()` directly on a Concept (`Site.where(...)`) | `.where()` goes on aggregations, constraints, definitions, or queries — not on bare concepts |
 | Using standalone `where()`/`select()` with multiple models | `"Multiple Models have been defined."` error | Use `model.where()`/`model.select()` instead of standalone imports |

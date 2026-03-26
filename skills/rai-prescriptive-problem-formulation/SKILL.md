@@ -14,16 +14,16 @@ description: Formulates optimization problems from ontology models covering deci
 - Formulating variables, constraints, and objectives for a selected problem
 - Reviewing or validating an existing formulation
 - Translating business requirements into mathematical formulation
-- Debugging trivial solutions, infeasibility, or missing constraints
+- Debugging formulations that would produce trivial or infeasible solutions (missing constraints, conflicting bounds, wrong aggregation scope)
 - Choosing between variable types (continuous, integer, binary)
 - Designing multi-concept coordination (flow networks, selection + quantity)
 
 **When NOT to use:**
+- Post-solve diagnosis of solutions that look wrong (all zeros, infeasible status, concentrated values) — see `rai-prescriptive-results-interpretation`
 - Problem discovery (suggesting problems for an ontology, reasoner classification) — see `rai-problem-discovery/SKILL.md`
 - PyRel syntax (imports, types, property patterns, stdlib) — see `rai-pyrel-coding`
 - Ontology modeling or model enrichment (concept design, gap classification) — see `rai-ontology-design`
 - Solver execution and diagnostics (solver selection, parameters, numerical stability) — see `rai-prescriptive-solver-management`
-- Post-solve interpretation (extraction, quality assessment, explanation) — see `rai-prescriptive-results-interpretation`
 - Aggregation syntax (count/sum/per patterns) — see `rai-querying`
 
 **Overview:**
@@ -389,9 +389,9 @@ Structure: `sum(X.prop).where(filter).per(grouping)` (for full `.per()` semantic
 - `.per()` on sum: GROUPS the aggregation (one value per group)
 - `.where()` on require(): ITERATES (one constraint per entity)
 
-**For per-entity constraints, BOTH `.per()` AND `iteration_entity` are needed:**
-- `.per(Entity)` makes sum produce one value per Entity
-- `iteration_entity` makes constraint iterate over each Entity
+**For per-entity constraints, use `.per()` on BOTH the sum and the constraint:**
+- `.per(Entity)` on `sum(...)` groups the aggregation (one total per Entity)
+- `.where(Entity)` on `require()` iterates the constraint (one constraint per Entity)
 
 Python variables holding expressions (e.g., `total = sum(...)`) are valid — don't flag as undefined.
 

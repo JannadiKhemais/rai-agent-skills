@@ -85,7 +85,7 @@ Rate each problem's feasibility using these actionable categories:
 
 ### Decision concepts as ontology extensions
 
-When PA formulates a problem, it creates decision concepts (e.g., `FulfillmentAssignment`, `ProductionPlan`) that extend the ontology -- they are not throwaway code artifacts. After solving, these concepts carry solution values that persist in the graph and can be referenced by other reasoners, queries, and applications.
+When a prescriptive problem is formulated, it creates decision concepts (e.g., `FulfillmentAssignment`, `ProductionPlan`) that extend the ontology -- they are not throwaway code artifacts. After solving, these concepts carry solution values that persist in the graph and can be referenced by other reasoners, queries, and applications.
 
 **What this means for enrichment:**
 - Decision concepts are part of the ontology growth story, not just the formulation layer

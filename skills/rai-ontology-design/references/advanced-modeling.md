@@ -251,4 +251,4 @@ model.select(Scenario.name, Project.name).where(
 
 **Implementation detail:** The argument structure is exposed via `Property._fields` — a list of
 `Field` objects with `.name`, `.type`, and `.is_input`. Multi-arg Properties have 2+ input fields
-(the subject + the scenario dimension). This is how PA detects scenario dimensions structurally.
+(the subject + the scenario dimension). This structure identifies scenario dimensions programmatically.

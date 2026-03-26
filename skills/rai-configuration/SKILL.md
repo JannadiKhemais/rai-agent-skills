@@ -229,12 +229,12 @@ session = cfg.get_session(SnowflakeConnection)           # typed, default
 conn = cfg.get_connection(SnowflakeConnection, name="sf") # by name
 
 # Or from the model (session is lazy — triggers on first job):
-m = Model("MyModel")
-session = m.config.get_session()          # get session from model
+model = Model("MyModel")
+session = model.config.get_session()          # get session from model
 session.sql("SELECT 1").collect()         # verify connection works
 
 # Force a fresh session (e.g., after rotating credentials):
-conn = m.config.get_default_connection()
+conn = model.config.get_default_connection()
 conn.clear_session_cache()
 ```
 
@@ -348,8 +348,8 @@ Controls SDK-level behavior: observability, retries, compiler strictness, and da
 # View collected metrics after running a query
 from relationalai.client import connect_sync
 client = connect_sync()
-m = Model("MyModel")
-m.select("hello world").to_df()
+model = Model("MyModel")
+model.select("hello world").to_df()
 print(client.execution_metrics.counters)
 print(client.execution_metrics.timings_ms)
 

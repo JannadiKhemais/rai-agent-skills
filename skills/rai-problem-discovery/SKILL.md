@@ -299,6 +299,13 @@ For graph problems, enrichment may also include constructing derived relationshi
 
 After the user selects a problem, route to the appropriate reasoner workflow based on the `reasoners` tag.
 
+### Presenting suggestions vs. routing metadata
+
+Discovery output serves two audiences: the **user** (who evaluates which problems to pursue) and the **downstream reasoner workflow** (which needs structured routing metadata). Keep these separate:
+
+- **User-facing**: Present suggestions in natural language — statement, feasibility, what it means for the business, what's needed next. No JSON, no implementation hints, no internal field names.
+- **Internal routing**: The suggestion schema below is for machine-to-machine handoff when the user selects a problem and you invoke a reasoner workflow. Do not surface it in conversation unless the user asks for technical detail.
+
 ### Suggestion output schema
 
 Each suggestion includes a `reasoners` field — an ordered list specifying the execution sequence. Single-reasoner problems have one entry; chained problems list stages in order.

@@ -97,17 +97,17 @@ Additional extraction hints:
 - "for each X" → the rule applies `.per(X)` or iterates over concept X
 - "across all Y" → aggregation is needed (`sum`, `count`, `avg`)
 - "if ... then ..." → condition → output mapping
-- "unless" / "except" → negation with `m.not_()`
+- "unless" / "except" → negation with `model.not_()`
 
 ### Step 2: Classify the Rule Type
 
 | Type | NL Signals | Output Pattern | PyRel Pattern |
 |------|-----------|----------------|---------------|
-| **Validation** | "is valid", "complies", "within policy", "meets requirement" | Boolean flag (`Relationship`) | `m.where(cond).define(Entity.is_valid())` |
-| **Classification** | "categorize", "tier", "grade", "segment", "bucket" | Subtype or Relationship to segment concept | `m.where(range).define(SegmentSubtype(Entity))` |
-| **Derivation** | "total", "calculated from", "sum of", "derived", "equals" | Computed value (`Property`) | `m.define(Entity.total(expression))` |
-| **Alerting** | "flag", "alert", "overdue", "exceeds", "breach", "violation" | Boolean + optional severity | `m.where(violation).define(Entity.is_flagged())` |
-| **Reconciliation** | "match", "agree", "discrepancy", "difference between" | Delta value (`Property`) | `m.define(Entity.delta(A.val - B.val))` |
+| **Validation** | "is valid", "complies", "within policy", "meets requirement" | Boolean flag (`Relationship`) | `model.where(cond).define(Entity.is_valid())` |
+| **Classification** | "categorize", "tier", "grade", "segment", "bucket" | Subtype or Relationship to segment concept | `model.where(range).define(SegmentSubtype(Entity))` |
+| **Derivation** | "total", "calculated from", "sum of", "derived", "equals" | Computed value (`Property`) | `model.define(Entity.total(expression))` |
+| **Alerting** | "flag", "alert", "overdue", "exceeds", "breach", "violation" | Boolean + optional severity | `model.where(violation).define(Entity.is_flagged())` |
+| **Reconciliation** | "match", "agree", "discrepancy", "difference between" | Delta value (`Property`) | `model.define(Entity.delta(A.val - B.val))` |
 
 **Disambiguation:** If the NL rule produces a boolean yes/no answer, it is validation or alerting. If it assigns
 a category from a fixed set, it is classification. If it computes a numeric value, it is derivation.

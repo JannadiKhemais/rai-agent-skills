@@ -111,6 +111,14 @@ graph = Graph(
 
 ## Graph Analysis Workflow
 
+### Step 0: Study the Existing Model
+
+Before writing any graph or enrichment code, read the existing model file to understand:
+
+1. **How to include base definitions** — graph scripts that extend an existing model must import it (e.g., `from my_model import model, Site, Operation`) so that all base `define()` rules are in scope. Creating a standalone `Model("same name")` reference without the base definitions will produce an empty graph because concept instances won't exist.
+2. **Coding conventions** — check how the existing model references table columns (casing, naming patterns) and follow the same style. The model file is the source of truth for conventions, not external metadata tools.
+3. **What's already wired** — identify which relationships and properties exist vs. what needs enrichment. Only enrich what's missing.
+
 ### Step 1: Identify Network Structure
 
 Before building a graph, identify what forms the network in the ontology:
@@ -363,6 +371,7 @@ model.where(Site.centrality_score < 0.1).define(Site.is_at_risk())
 | Reachability on undirected graph | Reachability is meaningful only with directed edges | Set `directed=True` for reachability/impact analysis |
 | Wrong node concept | Using intermediary concept as nodes instead of entity concept | Intermediary concepts form edges, not nodes — e.g., `Operation` is an edge between `Site` nodes |
 | Graph results not visible on original concept | Results bound to `graph.Node` but not to the source concept | Add explicit binding: `model.where(graph.Node == MyConcept).define(...)` |
+| Empty graph when extending existing model | Script creates `Model("name")` without importing base model definitions — concepts exist but have no instances | Import the base model module (e.g., `from my_model import model, Site`) so base `define()` rules are in scope |
 
 ---
 

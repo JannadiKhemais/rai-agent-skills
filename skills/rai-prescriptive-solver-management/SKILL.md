@@ -1,6 +1,6 @@
 ---
 name: rai-prescriptive-solver-management
-description: Covers solver lifecycle including problem type classification, solver selection and creation, global constraints, pre-solve validation, solve execution, and diagnostics. Use when configuring or running optimization solvers.
+description: Covers solver lifecycle including problem type classification, solver selection and creation, global constraints, pre-solve validation, solve execution, and solver-level diagnostics. Use when configuring or running optimization solvers, not for interpreting post-solve results.
 ---
 
 # Solver Management
@@ -15,13 +15,13 @@ description: Covers solver lifecycle including problem type classification, solv
 - Setting up Problem and Solver instances
 - Inspecting formulation before solving (p.display(), variable/constraint counts)
 - Tuning solver parameters (time limits, MIP gap, presolve)
-- Diagnosing solver failures (infeasible, unbounded, slow convergence)
-- Understanding numerical stability issues or Big-M sizing
+- Diagnosing solver-level failures (crashes, numerical instability, Big-M sizing)
+- Understanding solver performance (slow convergence, presolve tuning)
 - Running parametric/scenario solves
 
 **When NOT to use:**
+- Interpreting solver status or assessing solution quality after solve (OPTIMAL, INFEASIBLE, DUAL_INFEASIBLE, TIME_LIMIT, gap assessment, trivial solution detection) — see `rai-prescriptive-results-interpretation`
 - Variable/constraint/objective formulation patterns — see `rai-prescriptive-problem-formulation`
-- Post-solve solution extraction or interpretation — see `rai-prescriptive-results-interpretation`
 - PyRel syntax (imports, types, properties) — see `rai-pyrel-coding`
 
 **Overview:**
@@ -30,7 +30,7 @@ description: Covers solver lifecycle including problem type classification, solv
 3. Create Problem and Solver instances
 4. Validate formulation pre-solve (p.display(), count checks)
 5. Execute solve (parameters, time limits, warm starting)
-6. Diagnose issues if solve fails or produces poor results
+6. Diagnose solver-level issues (crashes, numerical instability, performance)
 
 ---
 
@@ -619,7 +619,7 @@ for excluded in [None, "SupplierC", "SupplierB"]:
 | Numerical issues | Coefficients differing by >1e6 | Rescale data to similar magnitudes |
 | `p.termination_status == "OPTIMAL"` is always False | Missing parens — `p.termination_status` returns a bound method, not a string | Use `p.termination_status()` (with parens) in `model.require()`, or `p.solve_info().termination_status` for Python-side |
 
-Post-solve diagnosis (trivial all-zero solutions, infeasibility root causes, quality assessment) is covered in the `solution_interpretation` skill.
+Post-solve diagnosis (trivial all-zero solutions, infeasibility root causes, quality assessment) is covered in `rai-prescriptive-results-interpretation`.
 
 ## Entity Creation Diagnosis
 

@@ -2,7 +2,7 @@
 
 ### Implementation Patterns
 
-Sensitivity analysis uses one of two PyRel patterns (PA selects automatically):
+Sensitivity analysis uses one of two PyRel patterns, chosen based on what is being varied:
 
 - **Parameter variations** (budget, demand, service levels): Scenario Concept — single solve,
   results contain scenario dimension, queryable via `model.select(Scenario.name, ...)`.

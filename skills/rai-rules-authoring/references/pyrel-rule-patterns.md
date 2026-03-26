@@ -239,7 +239,7 @@ model.where(math.abs(Match.delta) > 0.01).define(Match.has_discrepancy())
 
 ## Subtype Patterns
 
-For subtype rules (`extends=[m.Parent]`), including OR operator limitations, aggregation chaining
+For subtype rules (`extends=[model.Parent]`), including OR operator limitations, aggregation chaining
 restrictions, arithmetic property chaining, cross-entity property access, and nested computed
 properties, see [pyrel-subtype-rules.md](pyrel-subtype-rules.md).
 
@@ -265,15 +265,15 @@ relationships in PyRel v1.
 
 ```python
 # FAILS — ~ operator on boolean relationship
-results = m.where(
-    m.RecommendationLog.was_watched,
-    ~m.RecommendationLog.was_clicked,   # TypeError: bad operand type for unary ~
+results = model.where(
+    model.RecommendationLog.was_watched,
+    ~model.RecommendationLog.was_clicked,   # TypeError: bad operand type for unary ~
 ).select(...).to_df()
 
 # FAILS — not operator on boolean relationship
-results = m.where(
-    m.RecommendationLog.was_watched,
-    not m.RecommendationLog.was_clicked,  # Python not converts to bool, wrong semantics
+results = model.where(
+    model.RecommendationLog.was_watched,
+    not model.RecommendationLog.was_clicked,  # Python not converts to bool, wrong semantics
 ).select(...).to_df()
 ```
 
@@ -283,19 +283,19 @@ Query the positive set and the intersection, then subtract with pandas:
 
 ```python
 # Step 1: Get all entities with flag A
-all_watched = m.where(
-    m.RecommendationLog.was_watched,
+all_watched = model.where(
+    model.RecommendationLog.was_watched,
 ).select(
-    m.RecommendationLog.id.alias("id"),
-    m.RecommendationLog.recommendation_date.alias("date"),
+    model.RecommendationLog.id.alias("id"),
+    model.RecommendationLog.recommendation_date.alias("date"),
 ).to_df()
 
 # Step 2: Get entities with BOTH flag A AND flag B
-watched_and_clicked = m.where(
-    m.RecommendationLog.was_watched,
-    m.RecommendationLog.was_clicked,
+watched_and_clicked = model.where(
+    model.RecommendationLog.was_watched,
+    model.RecommendationLog.was_clicked,
 ).select(
-    m.RecommendationLog.id.alias("id"),
+    model.RecommendationLog.id.alias("id"),
 ).to_df()
 
 # Step 3: Subtract — entities with A but NOT B
@@ -304,7 +304,7 @@ results = all_watched[~all_watched["id"].isin(watched_and_clicked["id"])]
 
 > **Note:** `model.not_()` works for negating **property existence** (e.g., `model.not_(Entity.email)`)
 > and **relationship applications** in `define()` contexts. But for **boolean flag relationships**
-> (unary relationships like `Entity.is_active`) in query `m.where()` contexts, use the two-query
+> (unary relationships like `Entity.is_active`) in query `model.where()` contexts, use the two-query
 > pandas subtraction pattern above.
 
 **Aggregation-based rule — flag groups exceeding threshold:**
@@ -332,24 +332,24 @@ model.where(
 
 ```python
 # CORRECT — bind subtype to parent, access properties through parent concept
-results = m.where(
-    m.FlopMovie(m.Movie),
+results = model.where(
+    model.FlopMovie(model.Movie),
 ).select(
-    m.Movie.title.alias("title"),
-    m.Movie.profit_millions.alias("profit"),
-    m.Movie.roi_pct.alias("roi_pct"),
+    model.Movie.title.alias("title"),
+    model.Movie.profit_millions.alias("profit"),
+    model.Movie.roi_pct.alias("roi_pct"),
 ).to_df()
 
 # WRONG — accessing properties directly on subtype causes TyperError
-results = m.where(m.FlopMovie).select(
-    m.FlopMovie.title.alias("title"),  # FAILS: Type errors detected during type inference
+results = model.where(model.FlopMovie).select(
+    model.FlopMovie.title.alias("title"),  # FAILS: Type errors detected during type inference
 ).to_df()
 
 # Counting subtypes — also use parent binding
-results = m.select(
-    rai.count(m.Movie).alias("count"),
+results = model.select(
+    rai.count(model.Movie).alias("count"),
 ).where(
-    m.FlopMovie(m.Movie),
+    model.FlopMovie(model.Movie),
 ).to_df()
 ```
 

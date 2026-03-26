@@ -54,14 +54,14 @@ Groups an aggregation by one or more concepts. Two equivalent forms:
 ```python
 # Instead of repeating .per(LineItem.code, LineItem.status) on each aggregation:
 group = per(LineItem.code, LineItem.status)
-result = m.select(
+result = model.select(
     LineItem.code, LineItem.status,
     group.sum(LineItem.amount).alias("total"),
     group.count(LineItem).alias("cnt"),
 )
 
 # Also works in model.define():
-m.define(LineItem.group_total(group.sum(LineItem.amount)))
+model.define(LineItem.group_total(group.sum(LineItem.amount)))
 ```
 
 For applied aggregation patterns, see `rai-querying`.
