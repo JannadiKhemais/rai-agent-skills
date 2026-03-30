@@ -41,7 +41,11 @@ Start from the business domain — what concepts exist, what questions must the 
 
 Write and maintain a document to help people onboard and understand the decisionmaking process. Document your findings and decisions for each step.
 
-**Interactive mode:** Present your proposed design at each step and confirm before proceeding. The user knows their domain better than the data does.
+**Interaction mode:** Before starting, ask the user which mode they prefer:
+- **Guided** — present your proposed design at each step and confirm before proceeding. Best when the user has domain context or nuances to share along the way.
+- **One-shot** — produce the best result you can in a single pass. Best when the user wants speed and will review/iterate after.
+
+The user knows their domain better than the data does — guided mode lets them steer you through subtleties that aren't obvious from the schema alone.
 
 ### Step 1 — Scope
 

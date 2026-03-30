@@ -58,6 +58,10 @@ p = Problem(model, Float)
 
 ## Formulation Workflow
 
+**Interaction mode:** Before starting, ask the user which mode they prefer:
+- **Guided** — present your proposed variables, constraints, and objective at each step and confirm before proceeding. Best when the user has domain context to share — problem framing involves subjective judgment (what's a hard constraint vs. a soft goal, how to scope variables, which business rules matter most).
+- **One-shot** — produce the best formulation you can in a single pass. Best when the user wants speed and will review/iterate after.
+
 After a problem is selected (from problem discovery) and the ontology is enriched (if needed), build the formulation in this order:
 
 ### Step 1: Define Variables
