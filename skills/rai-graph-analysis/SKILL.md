@@ -32,7 +32,7 @@ description: Graph algorithm selection and execution on PyRel v1 models. Covers 
 - Feeding graph outputs into downstream reasoning (optimization, rules, predictions)
 
 **When NOT to use:**
-- Discovering whether graph analysis is appropriate for a dataset — see `rai-problem-discovery`
+- Discovering whether graph analysis is appropriate for a dataset — see `rai-discovery`
 - PyRel syntax reference (imports, types, model patterns) — see `rai-pyrel-coding`
 - Ontology design decisions (concept modeling, data mapping) — see `rai-ontology-design`
 - Optimization formulation (variables, constraints, objectives) — see `rai-prescriptive-problem-formulation`

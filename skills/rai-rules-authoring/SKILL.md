@@ -36,7 +36,7 @@ and reconciliation rule types.
 - Testing that a rule produces correct results on known data
 
 **When NOT to use:**
-- Discovering what rules a model can support (reasoner classification, feasibility) — see `rai-problem-discovery`
+- Discovering what rules a model can support (reasoner classification, feasibility) — see `rai-discovery`
 - PyRel syntax reference (imports, types, property patterns) — see `rai-pyrel-coding`
 - Ontology modeling decisions (concept vs property, data mapping) — see `rai-ontology-design`
 - Optimization formulation (variables, constraints, objectives) — see `rai-prescriptive-problem-formulation`

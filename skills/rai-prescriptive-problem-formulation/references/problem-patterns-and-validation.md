@@ -461,7 +461,7 @@ Systematic validation catches issues before the solver does (or before the solve
 
 Identifying the problem type early drives better formulation decisions — variable patterns, constraint structures, solver selection, and common pitfalls are all type-dependent.
 
-For the full classification table (semantic + structural signals), disambiguation rules, per-type structural checklists, and template references, see `rai-problem-discovery/prescriptive.md`.
+For the full classification table (semantic + structural signals), disambiguation rules, per-type structural checklists, and template references, see `rai-discovery/prescriptive.md`.
 
 Quick reference for validation use:
 

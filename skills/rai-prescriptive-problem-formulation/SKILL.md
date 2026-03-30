@@ -20,7 +20,7 @@ description: Formulates optimization problems from ontology models covering deci
 
 **When NOT to use:**
 - Post-solve diagnosis of solutions that look wrong (all zeros, infeasible status, concentrated values) — see `rai-prescriptive-results-interpretation`
-- Problem discovery (suggesting problems for an ontology, reasoner classification) — see `rai-problem-discovery/SKILL.md`
+- Question discovery (what can this ontology answer, reasoner classification) — see `rai-discovery`
 - PyRel syntax (imports, types, property patterns, stdlib) — see `rai-pyrel-coding`
 - Ontology modeling or model enrichment (concept design, gap classification) — see `rai-ontology-design`
 - Solver execution and diagnostics (solver selection, parameters, numerical stability) — see `rai-prescriptive-solver-management`
@@ -62,7 +62,7 @@ p = Problem(model, Float)
 - **Guided** — present your proposed variables, constraints, and objective at each step and confirm before proceeding. Best when the user has domain context to share — problem framing involves subjective judgment (what's a hard constraint vs. a soft goal, how to scope variables, which business rules matter most).
 - **One-shot** — produce the best formulation you can in a single pass. Best when the user wants speed and will review/iterate after.
 
-After a problem is selected (from problem discovery) and the ontology is enriched (if needed), build the formulation in this order:
+After a question is selected (from question discovery) and the ontology is enriched (if needed), build the formulation in this order:
 
 ### Step 1: Define Variables
 What decisions are being made? What can the solver control?

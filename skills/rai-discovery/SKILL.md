@@ -1,19 +1,19 @@
 ---
-name: rai-problem-discovery
-description: Guides exploration of what problems an RAI ontology can solve, classifies each by reasoner type, and assesses data readiness. Use before choosing a reasoner workflow or when scoping what to build next.
+name: rai-discovery
+description: Discover questions to answer or problems to solve. Surfaces what the data can support, classifies by reasoner type, and routes to the right workflow. Use before choosing a reasoner workflow or when scoping what to build next.
 ---
 
-# Problem Discovery
+# Question Discovery
 <!-- v1-SENSITIVE -->
 
 ## Summary
 
-**What:** Multi-reasoner problem and question discovery from ontology models. Surfaces what the data can answer, classifies by reasoner type, and routes to the right workflow.
+**What:** Multi-reasoner question discovery from ontology models. Surfaces what the data can answer, classifies by reasoner type, and routes to the right workflow.
 
 **When to use:**
-- Suggesting problems/questions for a given ontology
-- Analyzing a user's problem statement to determine reasoner type and feasibility
-- Classifying whether a problem needs prescriptive, graph, predictive, or rules reasoning
+- Suggesting questions a given ontology can answer
+- Analyzing a user's question to determine reasoner type and feasibility
+- Classifying whether a question needs prescriptive, graph, predictive, or rules reasoning
 - Identifying multi-reasoner chains (e.g., predict demand then optimize allocation)
 - Assessing data feasibility before committing to a workflow
 
@@ -30,7 +30,7 @@ description: Guides exploration of what problems an RAI ontology can solve, clas
 3. Identify multi-reasoner chains where applicable
 4. Assess feasibility (READY / MODEL_GAP / DATA_GAP)
 5. Present ranked suggestions to the user
-6. Route the selected problem to the appropriate reasoner workflow
+6. Route the selected question to the appropriate reasoner workflow
 
 ---
 
@@ -47,13 +47,13 @@ description: Guides exploration of what problems an RAI ontology can solve, clas
 |-------------|---------|-----------|
 | **READY** | All data in model | Proceed to reasoner workflow |
 | **MODEL_GAP** | Data in schema, not mapped | Enrich ontology first |
-| **DATA_GAP** | Data doesn't exist | Blocks the problem |
+| **DATA_GAP** | Data doesn't exist | Blocks the question |
 
 ---
 
 ## Discovery Workflow
 
-Problem discovery is the analyst's springboard into data-driven reasoning. The ontology reveals what problems the data can support -- the analyst learns what's possible before choosing what to pursue.
+Question discovery is the analyst's springboard into data-driven reasoning. The ontology reveals what questions the data can answer -- the analyst learns what's possible before choosing what to pursue.
 
 ### Steps
 
@@ -73,12 +73,12 @@ Problem discovery is the analyst's springboard into data-driven reasoning. The o
   - BAD: "Minimize sum(OPERATION.COST_PER_UNIT * OPERATION.X_FLOW) subject to SITE.CAPACITY"
   - BAD: "Optimize Shipment.quantity across Operation edges"
 - Maintain full technical specificity in `implementation_hint` fields -- these drive downstream workflow and must reference actual concept/property names
-- For each suggestion, distinguish what's ready to pursue, what needs model enrichment (auto-fixable), and what needs new data (blocks the problem)
-- Suggest problems across reasoner types when the data supports it -- don't default to only one type
+- For each suggestion, distinguish what's ready to pursue, what needs model enrichment (auto-fixable), and what needs new data (blocks the question)
+- Suggest questions across reasoner types when the data supports it -- don't default to only one type
 
 ### Presenting the discovery landscape
 
-Present suggestions as a landscape of what the data can answer -- across reasoner types -- not as a menu of one kind of problem.
+Present suggestions as a landscape of what the data can answer -- across reasoner types -- not as a menu of one kind of question.
 
 Frame suggestions by the type of question they answer:
 - "Here's what we can tell you about structure and connectivity" (graph)
@@ -108,43 +108,56 @@ Each suggestion must be tagged with one or more reasoner types. Use these signal
 - "What patterns/structure exist?" → graph
 - "What will happen / what category?" → predictive
 - "Is this correct / does this comply?" → rules
-- If a problem spans two categories, consider a multi-reasoner chain
+- If a question spans two categories, consider a multi-reasoner chain
 
-For detailed problem types, classification signals, and structural checklists per reasoner, see the reasoner-specific reference files: `prescriptive.md`, `graph.md`, `predictive.md`, `rules.md`.
+For detailed question types, classification signals, and structural checklists per reasoner, see the reasoner-specific reference files: `prescriptive.md`, `graph.md`, `predictive.md`, `rules.md`.
 
 ---
 
 ## Multi-Reasoner Chaining
 
-Some problems benefit from multiple reasoners in sequence. Each stage's output feeds the next stage's input.
+Some questions require multiple reasoners in sequence. Each stage's output enriches the ontology, enabling the next stage.
 
-| Chain | Pattern | Example |
-|-------|---------|---------|
-| Predictive -> Prescriptive | Predict parameters, then optimize | Forecast demand -> optimize inventory allocation |
-| Graph -> Prescriptive | Discover structure, then optimize over it | Identify supply network clusters -> optimize routing within clusters |
-| Rules -> Predictive | Validate/classify, then predict | Flag compliant transactions -> predict approval likelihood |
-| Graph -> Predictive | Extract features from structure, then predict | Compute centrality scores -> predict churn |
-| Predictive -> Rules | Predict outcomes, then enforce rules | Predict risk scores -> flag violations above threshold |
+### Chaining principles
 
-**How to suggest chained problems:**
+1. **Each stage enriches the same ontology.** Outputs (predictions, scores, flags, allocations) become queryable properties. The ontology grows through use — it accumulates knowledge from each reasoner.
+2. **Each stage must be independently valuable.** If a downstream stage fails or isn't needed, the upstream results still stand on their own.
+3. **The user's question drives stage selection.** Chains aren't fixed pipelines — the agent identifies which stages are needed based on what the user asks and what the ontology can support.
+4. **Stages follow a natural progression:** understand structure (graph) and validate data (rules) → predict what will happen (predictive) → decide what to do (prescriptive). Not every chain uses all stages.
+5. **Later stages reference earlier outputs as data.** Predicted values become constraint parameters. Centrality scores become allocation weights. Rule flags become filters. The handoff is always through the ontology.
+
+### Common chain patterns
+
+| Chain | Pattern | What flows between stages |
+|-------|---------|---------------------------|
+| Predictive → Prescriptive | Predict parameters, then optimize | Forecasted values become constraint/objective data |
+| Graph → Prescriptive | Discover structure, then optimize over it | Centrality scores, cluster labels become weights/filters |
+| Rules → Prescriptive | Validate/classify, then optimize given compliance | Flags and classifications constrain the feasible set |
+| Rules → Graph | Flag entities, then analyze their structural role | Flagged nodes become the focus of graph analysis |
+| Graph → Predictive | Extract structural features, then predict | Centrality, component membership become prediction features |
+| Predictive → Rules | Predict outcomes, then enforce thresholds | Predicted scores are evaluated against business rules |
+
+### Suggesting chained questions
+
 - State the full chain in the `statement` field: "Forecast regional demand (predictive), then optimize warehouse allocation to minimize stockouts (prescriptive)"
 - Tag with `reasoners: ["predictive", "prescriptive"]` (ordered by execution sequence)
 - Implementation hint includes per-stage detail: what each stage needs and what it produces for the next stage
 
-**Inter-stage handoff:**
-- Stage 1 output becomes Stage 2 input context (e.g., predicted demand values feed prescriptive constraint data)
-- If Stage 1 produces derived data (predictions, graph metrics), Stage 2 may need model enrichment to incorporate it
-- Each stage should be independently valuable -- if Stage 2 fails, Stage 1 results are still useful
+### Inter-stage handoff
+
+- Stage N output becomes Stage N+1 input context — always through ontology properties
+- If Stage N produces derived data (predictions, graph metrics, rule flags), Stage N+1 may need model enrichment to incorporate it
+- Each stage should be independently valuable — if Stage 2 fails, Stage 1 results are still useful
 
 ---
 
 ## Cumulative Discovery
 
-Each reasoner adds new concepts and properties to the ontology. Discovery should surface not just what's solvable now, but what becomes solvable after earlier stages run.
+Each reasoner adds new concepts and properties to the ontology. Discovery should surface not just what's answerable now, but what becomes answerable after earlier stages run.
 
-### Reasoner output enables new problems
+### Reasoner output enables new questions
 
-| Stage 1 Output | What It Adds to Ontology | Stage 2 Problems Unlocked |
+| Stage 1 Output | What It Adds to Ontology | Stage 2 Questions Unlocked |
 |----------------|--------------------------|---------------------------|
 | Graph centrality | `node.centrality_score` | Predictive: centrality as feature. Prescriptive: weight allocation by node importance. |
 | Graph reachability | impact_count, affected flags | Prescriptive: minimize disruption to high-impact nodes. Rules: alert on critical dependencies. |
@@ -152,14 +165,14 @@ Each reasoner adds new concepts and properties to the ontology. Discovery should
 | Predictive forecasting | `Forecast.predicted_value` | Prescriptive: optimize against predicted demand/delays. |
 | Predictive classification | `Entity.risk_probability` | Rules: flag above threshold. Prescriptive: incorporate risk as constraint. |
 
-### How to suggest cumulative problems
+### How to suggest cumulative questions
 
 When generating suggestions:
-1. First, identify problems solvable with the current ontology (standard discovery)
-2. Then, for graph/predictive suggestions, ask: "What additional problems does this output enable?"
-3. Present second-order problems with a clear dependency: "After running [Stage 1], this becomes solvable"
+1. First, identify questions answerable with the current ontology (standard discovery)
+2. Then, for graph/predictive suggestions, ask: "What additional questions does this output enable?"
+3. Present second-order questions with a clear dependency: "After running [Stage 1], this becomes answerable"
 
-Second-order problems are expansion opportunities, not alternatives. The analyst sees: "Here's what you can do now. Here's what opens up if you also run graph analysis."
+Second-order questions are expansion opportunities, not alternatives. The analyst sees: "Here's what you can do now. Here's what opens up if you also run graph analysis."
 
 ### The cumulative narrative
 
@@ -168,8 +181,9 @@ The ontology grows through use:
 - **After graph:** + what's connected, what's central, what's clustered
 - **After predictive:** + what will happen, what's at risk
 - **After prescriptive:** + what should we do, what's optimal
+- **After rules:** + what's valid, what's compliant, what's flagged
 
-Each layer makes the next more powerful. Discovery should convey this progression.
+Each layer makes the next more powerful. Question discovery should convey this progression — show users what opens up after each stage.
 
 ---
 
@@ -179,7 +193,7 @@ Shared across all reasoners. Classify each suggestion's data readiness:
 
 - **READY**: All required data is in the model. Can proceed directly to the reasoner workflow.
 - **MODEL_GAP**: Data exists in the schema (tables/columns) but isn't mapped to the model. Auto-fixable via `enrich_ontology`. Each gap should reference a specific `source_table` and `source_column` — without these, the enrichment tool cannot generate the correct `define()` rule.
-- **DATA_GAP**: Required data doesn't exist in any table. Blocks the problem. Include only if the domain has very limited potential -- flag what data would be needed.
+- **DATA_GAP**: Required data doesn't exist in any table. Blocks the question. Include only if the domain has very limited potential -- flag what data would be needed.
 
 **Order suggestions by feasibility:** READY first, then MODEL_GAP. Prefer suggestions that can proceed without manual data collection.
 
@@ -200,13 +214,13 @@ For full gap classification rules (property vs relationship gaps, boundary betwe
 
 ---
 
-## Problem Selection
+## Question Selection
 
-Selecting the right problem is "Phase 0" -- before any reasoner workflow begins. A poor choice wastes all downstream effort.
+Selecting the right question is "Phase 0" -- before any reasoner workflow begins. A poor choice wastes all downstream effort.
 
 ### The feasibility-value intersection
 
-Focus on problems at the intersection of **available data** (feasible) and **useful answers** (valuable). Work forwards from what data exists and backwards from what decisions/insights matter.
+Focus on questions at the intersection of **available data** (feasible) and **useful answers** (valuable). Work forwards from what data exists and backwards from what decisions/insights matter.
 
 **Data feasibility green flags:**
 - Data already used for reporting/analytics
@@ -232,7 +246,7 @@ Focus on problems at the intersection of **available data** (feasible) and **use
 - Answer requires organizational changes to act on
 - Benefits are diffuse or hard to measure
 
-### Problem selection scoring
+### Question selection scoring
 
 For each candidate, score on a 1-5 scale:
 
@@ -244,13 +258,13 @@ For each candidate, score on a 1-5 scale:
 | Impact | What is the cost of not having this answer? |
 | Implementation path | Can the answer be acted upon? |
 
-Prioritize problems scoring high on BOTH data AND value dimensions.
+Prioritize questions scoring high on BOTH data AND value dimensions.
 
 ### Common anti-patterns
 
 - **"Perfect Data" Trap:** Waiting for ideal data before starting. Start with available data; use sensitivity analysis to identify critical gaps.
 - **"Boil the Ocean" Trap:** Trying to answer everything at once. Start with one question, one scope, one time period.
-- **"Solution Looking for a Problem" Trap:** Forcing a reasoner where simpler approaches work. Ask: "What is wrong with a simple rule or heuristic here?"
+- **"Solution Looking for a Question" Trap:** Forcing a reasoner where simpler approaches work. Ask: "What is wrong with a simple rule or heuristic here?"
 - **"Data Rich, Insight Poor" Trap:** Lots of data but unclear what to answer. Start with the decision/question, work backwards to required data.
 
 ### Pre-workflow checklist
@@ -261,14 +275,14 @@ Before starting any reasoner workflow, confirm:
 - [ ] Is the data complete enough to generate meaningful results?
 - [ ] Who specifically will use this output?
 - [ ] What will they do differently because of it?
-- [ ] Is this the smallest useful version of the problem?
+- [ ] Is this the smallest useful version of the question?
 - [ ] Can the results be validated against known cases?
 
 ---
 
 ## Variety Heuristics
 
-When suggesting problems, explore different aspects of the domain where the data supports it:
+When suggesting questions, explore different aspects of the domain where the data supports it:
 - Different reasoner types (don't suggest only optimization if graph/predictive questions are viable)
 - Different decision structures (assignment vs selection vs sizing vs sequencing)
 - Different objectives/questions (cost vs coverage vs structure vs prediction)
@@ -284,31 +298,31 @@ Vary the business question itself, not just constraints -- use different objecti
 
 ## Enrichment Handoff
 
-When the user selects a problem with **MODEL_GAP** feasibility:
+When the user selects a question with **MODEL_GAP** feasibility:
 
 1. The next step is `enrich_ontology`, not the reasoner workflow
 2. Show the specific gaps and their source tables/columns from `model_gap_fixes`
 3. After enrichment, re-assess feasibility -- it should now be READY
 4. Then proceed to the reasoner workflow via Post-Discovery Routing
 
-For graph problems, enrichment may also include constructing derived relationships needed for graph edges (e.g., a `ships_to` relationship derived from Shipment data, or operation-based site connectivity).
+For graph questions, enrichment may also include constructing derived relationships needed for graph edges (e.g., a `ships_to` relationship derived from Shipment data, or operation-based site connectivity).
 
 ---
 
 ## Post-Discovery Routing
 
-After the user selects a problem, route to the appropriate reasoner workflow based on the `reasoners` tag.
+After the user selects a question, route to the appropriate reasoner workflow based on the `reasoners` tag.
 
 ### Presenting suggestions vs. routing metadata
 
-Discovery output serves two audiences: the **user** (who evaluates which problems to pursue) and the **downstream reasoner workflow** (which needs structured routing metadata). Keep these separate:
+Discovery output serves two audiences: the **user** (who evaluates which questions to pursue) and the **downstream reasoner workflow** (which needs structured routing metadata). Keep these separate:
 
 - **User-facing**: Present suggestions in natural language — statement, feasibility, what it means for the business, what's needed next. No JSON, no implementation hints, no internal field names.
-- **Internal routing**: The suggestion schema below is for machine-to-machine handoff when the user selects a problem and you invoke a reasoner workflow. Do not surface it in conversation unless the user asks for technical detail.
+- **Internal routing**: The suggestion schema below is for machine-to-machine handoff when the user selects a question and you invoke a reasoner workflow. Do not surface it in conversation unless the user asks for technical detail.
 
 ### Suggestion output schema
 
-Each suggestion includes a `reasoners` field — an ordered list specifying the execution sequence. Single-reasoner problems have one entry; chained problems list stages in order.
+Each suggestion includes a `reasoners` field — an ordered list specifying the execution sequence. Single-reasoner questions have one entry; chained questions list stages in order.
 
 ```json
 {
@@ -337,7 +351,7 @@ Each suggestion includes a `reasoners` field — an ordered list specifying the 
 | **rules** | `rule_type`, `source_concept`, `condition_properties`, `join_path`, `threshold`, `output_type`, `output_property`, `downstream_use` |
 | **predictive** | `type`, `mode` (`pre_computed` or `rai_predictive`), `target_concept`, `target_property`, `feature_properties`, `output_concept`, `pre_computed_table` |
 
-**For chained problems**, use a `stages` array in `implementation_hint`:
+**For chained questions**, use a `stages` array in `implementation_hint`:
 
 ```json
 {
@@ -370,13 +384,13 @@ After discovery, use the appropriate formulation skill for the chosen reasoner t
 
 | Mistake | Cause | Fix |
 |---------|-------|-----|
-| Suggesting problems with no data backing | Skipping feasibility check before proposing | Use READY/MODEL_GAP/DATA_GAP classification; verify data exists before suggesting |
+| Suggesting questions with no data backing | Skipping feasibility check before proposing | Use READY/MODEL_GAP/DATA_GAP classification; verify data exists before suggesting |
 | All suggestions are the same reasoner type | Only considering optimization use cases | Check ontology for graph structure, temporal features, rule patterns -- not just optimization |
-| Chained problem with unclear handoff | Missing interface specification between stages | Each stage must define inputs and outputs explicitly |
-| Missing forcing requirement (prescriptive) | Overlooking mandatory constraint in prescriptive problems | See `prescriptive.md` for forcing constraint and implementation hint guidance |
+| Chained question with unclear handoff | Missing interface specification between stages | Each stage must define inputs and outputs explicitly |
+| Missing forcing requirement (prescriptive) | Overlooking mandatory constraint in prescriptive questions | See `prescriptive.md` for forcing constraint and implementation hint guidance |
 | All suggestions cluster in one domain | Not surveying the full concept space | Spread across distinct business domains present in concept names |
 | Confusing model gaps with reasoner-layer constructs | Treating computed outputs as missing data | Decision variables, predictions, graph metrics have no source table -- they're not model gaps |
-| Suggesting DATA_GAP problems as top choices | Prioritizing novelty over feasibility | Order by feasibility: READY first, MODEL_GAP second, DATA_GAP only if domain is very narrow |
+| Suggesting DATA_GAP questions as top choices | Prioritizing novelty over feasibility | Order by feasibility: READY first, MODEL_GAP second, DATA_GAP only if domain is very narrow |
 
 ---
 

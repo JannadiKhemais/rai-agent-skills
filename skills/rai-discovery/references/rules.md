@@ -132,7 +132,7 @@ For each chained suggestion, the implementation hint should include `downstream_
 
 After selecting a rules suggestion from discovery, the execution workflow uses the `rai-rules-authoring` skill for NL-to-PyRel translation, rule type classification, pattern selection, and validation.
 
-**Discovery** (`rai-problem-discovery` + this reference file) answers: "What rules can this data support?"
+**Question discovery** (`rai-discovery` + this reference file) answers: "What rules can this data support?"
 **Execution** (`rai-rules-authoring`) answers: "How do I translate the rule to PyRel and validate it?"
 
 The implementation hint from discovery provides the starting point for execution:
