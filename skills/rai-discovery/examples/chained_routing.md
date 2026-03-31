@@ -1,6 +1,6 @@
 # Chained Routing Examples
 
-Discovery-to-routing walkthroughs for multi-reasoner chains. Each example shows how one reasoner's output enables the next, and how discovery should suggest the full chain.
+Discovery-to-routing walkthroughs for multi-reasoner chains. Each example shows how one reasoner's output enables the next, and how discovery should suggest the full chain of questions.
 
 Source: hero-user-journey/src/hero_user_journey/ (supply chain domain, PyRel v1)
 
@@ -9,13 +9,13 @@ Source: hero-user-journey/src/hero_user_journey/ (supply chain domain, PyRel v1)
 ## Graph → Prescriptive: "Identify critical warehouses, then optimize allocation weighted by importance"
 
 ### Discovery framing
-Two suggestions that form a cumulative chain:
+Two questions that form a cumulative chain:
 
-**Suggestion A (graph, standalone):** "Which warehouses are most critical to supply chain resilience?"
+**Question A (graph, standalone):** "Which warehouses are most critical to supply chain resilience?"
 - Feasibility: READY (network topology exists)
 - Output: `Site.centrality_score` enriches the ontology
 
-**Suggestion B (prescriptive, depends on A):** "Allocate inventory across warehouses weighted by network importance"
+**Question B (prescriptive, depends on A):** "Allocate inventory across warehouses weighted by network importance"
 - Feasibility: depends on graph output — only solvable after centrality scores exist
 - Uses `Site.centrality_score` as a weight in the allocation objective or constraint
 
@@ -40,13 +40,13 @@ Two suggestions that form a cumulative chain:
 ## Predictive → Prescriptive: "Forecast supplier delays, then optimize re-sourcing given predicted reliability"
 
 ### Discovery framing
-Two suggestions that form a sequential chain:
+Two questions that form a sequential chain:
 
-**Suggestion A (predictive):** "Which suppliers will likely have the most delayed shipments next quarter?"
+**Question A (predictive):** "Which suppliers will likely have the most delayed shipments next quarter?"
 - Feasibility: READY (DelayPrediction table exists as pre-computed predictions)
 - Output: `DelayPrediction.predicted_delay_prob` per supplier per quarter
 
-**Suggestion B (prescriptive, uses A's output):** "Given predicted delays, how should we re-source to minimize cost while maintaining reliability?"
+**Question B (prescriptive, uses A's output):** "Given predicted delays, how should we re-source to minimize cost while maintaining reliability?"
 - Feasibility: READY (prediction data + operation costs + demand all in model)
 - Uses `predicted_delay_prob` as the reliability parameter in constraints
 
@@ -73,16 +73,16 @@ Two suggestions that form a sequential chain:
 ## Graph → Graph → Prescriptive: "Map network structure, assess impact, then optimize contingency"
 
 ### Discovery framing
-A three-stage chain where each stage builds on the previous:
+A three-stage chain where each question builds on the previous:
 
-**Suggestion A (graph):** "Which warehouses are bridges between supply chain clusters?"
+**Question A (graph):** "Which warehouses are bridges between supply chain clusters?"
 - WCC + bridge detection → identifies single points of failure
 
-**Suggestion B (graph):** "If a critical supplier goes offline, which customers and products are affected?"
+**Question B (graph):** "If a critical supplier goes offline, which customers and products are affected?"
 - Downstream reachability from at-risk supplier → quantifies impact
 
-**Suggestion C (prescriptive):** "Re-source components to minimize cost while covering all affected customers"
-- Optimization over the impact set identified by graph analysis
+**Question C (prescriptive):** "Re-source components to minimize cost while covering all affected customers"
+- Optimization problem scoped by the impact set identified by graph analysis
 
 ### How discovery presents this
 ```

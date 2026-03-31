@@ -53,6 +53,10 @@ description: Covers RAI domain modeling decisions including concepts, relationsh
 
 ## Ontology Design Workflow
 
+**Interaction mode:** Before starting, ask the user which mode they prefer:
+- **Guided** — present your proposed design decisions at each phase and confirm before proceeding. Best when the user has domain context or nuances to share along the way.
+- **One-shot** — produce the best result you can in a single pass. Best when the user wants speed and will review/iterate after.
+
 When building an ontology, start from the business domain -- what concepts exist, what questions must the model answer -- then find data mappings. Domain-first modeling produces better models than table-to-concept mapping because user intent drives concept selection rather than table structure. Think through these phases in order. This is not a pipeline to execute step-by-step -- it is the order in which decisions should be considered, since each phase depends on the one before it.
 
 0. **Scope first (for new models)** -- Define 1-3 concrete questions the model must answer and explicitly list what is out of scope. Keep the first version to ~10-15 must-have properties. A tight scope keeps the model small enough to implement and validate without rework. Example:

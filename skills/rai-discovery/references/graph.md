@@ -188,7 +188,7 @@ When assessing feasibility, include these in the analysis and downgrade to MODEL
 
 After selecting a graph suggestion from discovery, the execution workflow uses the `rai-graph-analysis` skill for graph construction, algorithm selection, parameter configuration, and result extraction.
 
-**Discovery** (`rai-problem-discovery` + this reference file) answers: "What graph questions can this data answer?"
+**Discovery** (`rai-discovery` + this reference file) answers: "What graph questions can this data answer?"
 **Execution** (`rai-graph-analysis`) answers: "How do I build the graph, run the algorithm, and extract results?"
 
 The implementation hint from discovery provides the starting point for execution:
